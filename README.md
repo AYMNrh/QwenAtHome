@@ -27,6 +27,7 @@ Measured local Qwen inference experiments on one RTX 5070 Ti 16 GB: llama.cpp, S
 
 ## Documentation
 
+- [Visual benchmark gallery](docs/visuals.md) — four charts with PNG/SVG exports and source data
 - [Experiment log, model inventory, and tuning sweeps](docs/experiments.md)
 - [Methodology and reproducibility](docs/methodology.md)
 - [Portable launch profiles and API setup](docs/setup.md)
@@ -43,3 +44,17 @@ Measured local Qwen inference experiments on one RTX 5070 Ti 16 GB: llama.cpp, S
 MTP helped these short coding fixtures. Context lookup helped most when output copied input. Prefix caching made repeated long-context requests dramatically quicker. A loaded model and a configured context limit did not establish stable long-context performance. Fresh-code failures occurred despite good generation speeds.
 
 The last configured profile in this record was Huihui at 32K with Q8 KV and MTP. This repository does not monitor or control a running server. It contains no model weights, inference binaries, credentials, or personal chat exports.
+
+## Visual results
+
+### Speed with the correctness checks visible
+
+![Three coding tasks across six profiles. Failed checks are marked in pink; Flash shows three-run medians and observed ranges.](docs/assets/coding-speed-and-correctness.png)
+
+Pink bars include failed code. The configurations differ in context, precision, engine, and sample count; this is not a controlled model leaderboard.
+
+### How much the cached follow-up changes the wait
+
+![Cold versus cached complete-response latency on a logarithmic seconds axis. Q3 uses an 84K prompt; the other rows use 32K.](docs/assets/context-cache-latency.png)
+
+All eight shown retrieval checks passed. These are complete-response times, not time to first token. [See lookup and MTP charts, exports, and methodology](docs/visuals.md).
