@@ -1,0 +1,17 @@
+{
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 743,
+    "prompt_ms": 771.224,
+    "prompt_per_token_ms": 1.0379865410497982,
+    "prompt_per_second": 963.4036285177847,
+    "predicted_n": 703,
+    "predicted_ms": 5219.802,
+    "predicted_per_token_ms": 7.435615384615384,
+    "predicted_per_second": 134.48785988434045,
+    "draft_n": 616,
+    "draft_n_accepted": 614
+  },
+  "text": "config[\"setting_1\"] = 1\nconfig[\"setting_2\"] = 2\nconfig[\"setting_3\"] = 3\nconfig[\"setting_4\"] = 4\nconfig[\"setting_5\"] = 5\nconfig[\"setting_6\"] = 6\nconfig[\"setting_7\"] = 7\nconfig[\"setting_8\"] = 8\nconfig[\"setting_9\"] = 9\nconfig[\"setting_10\"] = 10\nconfig[\"setting_11\"] = 11\nconfig[\"setting_12\"] = 12\nconfig[\"setting_13\"] = 13\nconfig[\"setting_14\"] = 14\nconfig[\"setting_15\"] = 15\nconfig[\"setting_16\"] = 16\nconfig[\"setting_17\"] = 17\nconfig[\"setting_18\"] = 18\nconfig[\"setting_19\"] = 19\nconfig[\"setting_20\"] = 20\nconfig[\"setting_21\"] = 21\nconfig[\"setting_22\"] = 22\nconfig[\"setting_23\"] = 23\nconfig[\"setting_24\"] = 24\nconfig[\"setting_25\"] = 25\nconfig[\"setting_26\"] = 26\nconfig[\"setting_27\"] = 27\nconfig[\"setting_28\"] = 28\nconfig[\"setting_29\"] = 29\nconfig[\"setting_30\"] = 999\nconfig[\"setting_31\"] = 31\nconfig[\"setting_32\"] = 32\nconfig[\"setting_33\"] = 33\nconfig[\"setting_34\"] = 34\nconfig[\"setting_35\"] = 35\nconfig[\"setting_36\"] = 36\nconfig[\"setting_37\"] = 37\nconfig[\"setting_38\"] = 38\nconfig[\"setting_39\"] = 39\nconfig[\"setting_40\"] = 40\nconfig[\"setting_41\"] = 41\nconfig[\"setting_42\"] = 42\nconfig[\"setting_43\"] = 43\nconfig[\"setting_44\"] = 44\nconfig[\"setting_45\"] = 45\nconfig[\"setting_46\"] = 46\nconfig[\"setting_47\"] = 47\nconfig[\"setting_48\"] = 48\nconfig[\"setting_49\"] = 49\nconfig[\"setting_50\"] = 50\nconfig[\"setting_51\"] = 51\nconfig[\"setting_52\"] = 52\nconfig[\"setting_53\"] = 53\nconfig[\"setting_54\"] = 54\nconfig[\"setting_55\"] = 55\nconfig[\"setting_56\"] = 56\nconfig[\"setting_57\"] = 57\nconfig[\"setting_58\"] = 58\nconfig[\"setting_59\"] = 59\nconfig[\"setting_60\"] = 60",
+  "exact_edit": true
+}

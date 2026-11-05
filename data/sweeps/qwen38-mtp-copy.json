@@ -1,0 +1,17 @@
+{
+  "finish": "stop",
+  "text": "settings[\"setting_1\"] = 1\nsettings[\"setting_2\"] = 2\nsettings[\"setting_3\"] = 3\nsettings[\"setting_4\"] = 4\nsettings[\"setting_5\"] = 5\nsettings[\"setting_6\"] = 6\nsettings[\"setting_7\"] = 7\nsettings[\"setting_8\"] = 8\nsettings[\"setting_9\"] = 9\nsettings[\"setting_10\"] = 10\nsettings[\"setting_11\"] = 11\nsettings[\"setting_12\"] = 12\nsettings[\"setting_13\"] = 13\nsettings[\"setting_14\"] = 14\nsettings[\"setting_15\"] = 15\nsettings[\"setting_16\"] = 16\nsettings[\"setting_17\"] = 17\nsettings[\"setting_18\"] = 18\nsettings[\"setting_19\"] = 19\nsettings[\"setting_20\"] = 20\nsettings[\"setting_21\"] = 21\nsettings[\"setting_22\"] = 22\nsettings[\"setting_23\"] = 23\nsettings[\"setting_24\"] = 24\nsettings[\"setting_25\"] = 25\nsettings[\"setting_26\"] = 26\nsettings[\"setting_27\"] = 27\nsettings[\"setting_28\"] = 28\nsettings[\"setting_29\"] = 29\nsettings[\"setting_30\"] = 30",
+  "timings": {
+    "cache_n": 0,
+    "prompt_n": 376,
+    "prompt_ms": 474.876,
+    "prompt_per_token_ms": 1.262968085106383,
+    "prompt_per_second": 791.7856450947196,
+    "predicted_n": 342,
+    "predicted_ms": 2602.859,
+    "predicted_per_token_ms": 7.633017595307917,
+    "predicted_per_second": 131.00978577786964,
+    "draft_n": 258,
+    "draft_n_accepted": 255
+  }
+}

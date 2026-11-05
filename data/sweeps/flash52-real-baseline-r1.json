@@ -1,0 +1,92 @@
+[
+  {
+    "profile": "baseline-r1",
+    "task": "bugfix",
+    "passed": true,
+    "error": "",
+    "finish": "stop",
+    "wall_seconds": 3.5619857999990927,
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 268,
+      "prompt_ms": 1067.5,
+      "prompt_per_token_ms": 3.983,
+      "prompt_per_second": 251.1,
+      "predicted_n": 209,
+      "predicted_ms": 2459.6,
+      "predicted_per_token_ms": 11.768,
+      "predicted_per_second": 85.0,
+      "draft_n": 181,
+      "draft_n_accepted": 168
+    },
+    "usage": {
+      "prompt_tokens": 268,
+      "completion_tokens": 209,
+      "total_tokens": 477,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+  },
+  {
+    "profile": "baseline-r1",
+    "task": "multi_function_edit",
+    "passed": true,
+    "error": "",
+    "finish": "stop",
+    "wall_seconds": 2.2909079999990354,
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 240,
+      "prompt_ms": 754.9,
+      "prompt_per_token_ms": 3.145,
+      "prompt_per_second": 317.9,
+      "predicted_n": 161,
+      "predicted_ms": 1521.0,
+      "predicted_per_token_ms": 9.447,
+      "predicted_per_second": 105.9,
+      "draft_n": 136,
+      "draft_n_accepted": 119
+    },
+    "usage": {
+      "prompt_tokens": 240,
+      "completion_tokens": 161,
+      "total_tokens": 401,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "text": "```python\ndef escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")\n```"
+  },
+  {
+    "profile": "baseline-r1",
+    "task": "fresh_code",
+    "passed": false,
+    "error": "Traceback (most recent call last):\n  File \"<BENCHMARK_OUTPUT>/flash52-baseline-r1-fresh_code.py\", line 28, in <module>\n    g=merge_sorted_events([stream(),[c,d],[]]); assert count[0]==0; assert next(g) is a; assert count[0]==1; assert list(g)==[c,b,d]; assert list(merge_sorted_events([]))==[]\n                                                                           ^^^^^^^\n  File \"<BENCHMARK_OUTPUT>/flash52-baseline-r1-fresh_code.py\", line 8, in merge_sorted_events\n    event = next(stream)\n            ^^^^^^^^^^^^\nTypeError: 'list' object is not an iterator\n",
+    "finish": "stop",
+    "wall_seconds": 2.224902599999041,
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 113,
+      "prompt_ms": 600.7,
+      "prompt_per_token_ms": 5.316,
+      "prompt_per_second": 188.1,
+      "predicted_n": 152,
+      "predicted_ms": 1620.6,
+      "predicted_per_token_ms": 10.662,
+      "predicted_per_second": 93.8,
+      "draft_n": 126,
+      "draft_n_accepted": 105
+    },
+    "usage": {
+      "prompt_tokens": 113,
+      "completion_tokens": 152,
+      "total_tokens": 265,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    heap = []\n    for i, stream in enumerate(streams):\n        try:\n            event = next(stream)\n            heapq.heappush(heap, (event['timestamp'], i, 0, event))\n        except StopIteration:\n            pass\n\n    while heap:\n        timestamp, stream_index, order_in_stream, event = heapq.heappop(heap)\n        yield event\n        try:\n            next_event = next(streams[stream_index])\n            heapq.heappush(heap, (next_event['timestamp'], stream_index, order_in_stream + 1, next_event))\n        except StopIteration:\n            pass\n```"
+  }
+]

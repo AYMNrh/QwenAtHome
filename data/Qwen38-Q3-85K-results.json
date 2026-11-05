@@ -1,0 +1,541 @@
+{
+  "model": "Qwen3.8-27B-UD-Q3_K_XL.gguf",
+  "sha256": "8c2a45ff85e7674ca185ec8eb6cdeab0e617ed9d8018caed0b64380eb2a67a5e",
+  "context": 84992,
+  "coding": [
+    {
+      "profile": "q3-85k",
+      "task": "bugfix",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 4.1653009000001475,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 268,
+        "prompt_ms": 662.522,
+        "prompt_per_token_ms": 2.472097014925373,
+        "prompt_per_second": 404.5148689402012,
+        "predicted_n": 209,
+        "predicted_ms": 3475.105,
+        "predicted_per_token_ms": 16.707235576923075,
+        "predicted_per_second": 59.854306560521195,
+        "draft_n": 156,
+        "draft_n_accepted": 156
+      },
+      "usage": {
+        "completion_tokens": 209,
+        "prompt_tokens": 268,
+        "total_tokens": 477,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+    },
+    {
+      "profile": "q3-85k",
+      "task": "multi_function_edit",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 3.5666732999998203,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 240,
+        "prompt_ms": 625.333,
+        "prompt_per_token_ms": 2.6055541666666664,
+        "prompt_per_second": 383.79551375027387,
+        "predicted_n": 156,
+        "predicted_ms": 2858.1,
+        "predicted_per_token_ms": 18.439354838709676,
+        "predicted_per_second": 54.231832336167386,
+        "draft_n": 120,
+        "draft_n_accepted": 115
+      },
+      "usage": {
+        "completion_tokens": 156,
+        "prompt_tokens": 240,
+        "total_tokens": 396,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "def escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")"
+    },
+    {
+      "profile": "q3-85k",
+      "task": "fresh_code",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"<BENCHMARK_OUTPUT>/qwen38-q3-85k-fresh_code.py\", line 86, in <module>\n    g=merge_sorted_events([stream(),[c,d],[]]); assert count[0]==0; assert next(g) is a; assert count[0]==1; assert list(g)==[c,b,d]; assert list(merge_sorted_events([]))==[]\n                                                                           ^^^^^^^\n  File \"<BENCHMARK_OUTPUT>/qwen38-q3-85k-fresh_code.py\", line 60, in merge_sorted_events\n    item = next(stream)\n           ^^^^^^^^^^^^\nTypeError: 'list' object is not an iterator\n",
+      "finish": "stop",
+      "wall_seconds": 19.876725199999782,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 113,
+        "prompt_ms": 394.372,
+        "prompt_per_token_ms": 3.4900176991150444,
+        "prompt_per_second": 286.53149817938396,
+        "predicted_n": 944,
+        "predicted_ms": 19423.508,
+        "predicted_per_token_ms": 20.597569459172853,
+        "predicted_per_second": 48.54941754084792,
+        "draft_n": 894,
+        "draft_n_accepted": 645
+      },
+      "usage": {
+        "completion_tokens": 944,
+        "prompt_tokens": 113,
+        "total_tokens": 1057,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nimport heapq\nfrom typing import Iterator, Dict, Any, Iterable\n\n\ndef merge_sorted_events(streams: Iterable[Iterator[Dict[str, Any]]]) -> Iterator[Dict[str, Any]]:\n    \"\"\"\n    Lazily merge any number of already-sorted iterables of dicts with numeric timestamp keys.\n    \n    Args:\n        streams: An iterable of iterators/generators, each yielding dicts with a 'timestamp' key.\n                 Each stream must be sorted in ascending order by timestamp.\n    \n    Yields:\n        Dicts in ascending timestamp order. Ties are broken by lower stream index first,\n        then by original order within that stream.\n    \"\"\"\n    # We need to track:\n    # - The current item from each stream\n    # - The stream index (for tie-breaking)\n    # - A counter for stable ordering within the same stream (though since we read one at a time,\n    #   and each stream is a single iterator, the order within a stream is naturally preserved\n    #   by the iterator itself. However, heapq doesn't guarantee stability for equal keys,\n    #   so we use a counter to ensure that if two items from the same stream somehow had the same\n    #   timestamp (which shouldn't happen if sorted, but for safety), or more importantly,\n    #   to break ties between different streams by stream index, and within a stream by insertion order.\n    #\n    # Actually, the requirement says: \"ties keep lower stream index first and original order within that stream.\"\n    # Since each stream is a single iterator, \"original order within that stream\" is just the order\n    # in which items are yielded. When we push an item from a stream, we push it with a sequence number\n    # that reflects its position in that stream. But since we only have one pending item per stream at a time,\n    # and we push the next item from a stream only after popping the previous one, the sequence number\n    # for a given stream will be monotonically increasing.\n    #\n    # To handle ties correctly:\n    # - Primary key: timestamp\n    # - Secondary key: stream index\n    # - Tertiary key: a counter that increments each time we push from a stream, ensuring that\n    #   if two items from the same stream had the same timestamp (unlikely but possible), they'd\n    #   be in order. But more importantly, this ensures stability.\n    #\n    # However, since we're reading one at a time, and each stream is sorted, we don't need a per-stream\n    # counter for stability within a stream because we only have one item from each stream in the heap at a time.\n    # The tie-breaking by stream index is sufficient. But to be safe and to satisfy \"original order within that stream\",\n    # we can use a global counter that increments for every item pushed. This ensures that if two items have the same\n    # timestamp and same stream index (impossible since one per stream), or if we want to be extra safe, we use a global\n    # sequence number.\n    #\n    # Let's use: (timestamp, stream_index, global_counter, item)\n    # This ensures:\n    # 1. Ascending timestamp\n    # 2. For same timestamp, lower stream index first\n    # 3. For same timestamp and same stream index (shouldn't happen), earlier pushed item first (which is the original order)\n\n    heap = []\n    global_counter = 0\n\n    # Initialize the heap with the first item from each stream\n    for stream_idx, stream in enumerate(streams):\n        try:\n            item = next(stream)\n            timestamp = item['timestamp']\n            heapq.heappush(heap, (timestamp, stream_idx, global_counter, item, stream))\n            global_counter += 1\n        except StopIteration:\n            pass\n\n    while heap:\n        timestamp, stream_idx, counter, item, stream = heapq.heappop(heap)\n        yield item\n\n        # Try to get the next item from the same stream\n        try:\n            next_item = next(stream)\n            next_timestamp = next_item['timestamp']\n            heapq.heappush(heap, (next_timestamp, stream_idx, global_counter, next_item, stream))\n            global_counter += 1\n        except StopIteration:\n            pass\n```"
+    }
+  ],
+  "context_checks": [
+    {
+      "target": 84000,
+      "phase": "cold",
+      "passed": true,
+      "answer": "```json\n{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}\n```",
+      "wall_seconds": 237.3813654000005,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 83916,
+        "prompt_ms": 236021.854,
+        "prompt_per_token_ms": 2.812596572763239,
+        "prompt_per_second": 355.5433472698677,
+        "predicted_n": 50,
+        "predicted_ms": 1255.601,
+        "predicted_per_token_ms": 25.624510204081634,
+        "predicted_per_second": 39.02513616985013,
+        "draft_n": 39,
+        "draft_n_accepted": 36
+      },
+      "usage": {
+        "completion_tokens": 50,
+        "prompt_tokens": 83916,
+        "total_tokens": 83966,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 15881,
+      "minimum_free_vram_mib": 115
+    },
+    {
+      "target": 84000,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "```json\n{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}\n```",
+      "wall_seconds": 1.4386904999992112,
+      "timings": {
+        "cache_n": 83965,
+        "prompt_n": 35,
+        "prompt_ms": 351.048,
+        "prompt_per_token_ms": 10.029942857142856,
+        "prompt_per_second": 99.70146532667897,
+        "predicted_n": 50,
+        "predicted_ms": 1045.512,
+        "predicted_per_token_ms": 21.336979591836734,
+        "predicted_per_second": 46.86698957066012,
+        "draft_n": 39,
+        "draft_n_accepted": 36
+      },
+      "usage": {
+        "completion_tokens": 50,
+        "prompt_tokens": 84000,
+        "total_tokens": 84050,
+        "prompt_tokens_details": {
+          "cached_tokens": 83965
+        }
+      },
+      "peak_vram_mib": 15653,
+      "minimum_free_vram_mib": 343
+    }
+  ],
+  "no_mtp_coding": [
+    {
+      "profile": "q3-85k-nomtp",
+      "task": "bugfix",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 4.9141132999993715,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 268,
+        "prompt_ms": 523.694,
+        "prompt_per_token_ms": 1.9540820895522386,
+        "prompt_per_second": 511.74922760237854,
+        "predicted_n": 209,
+        "predicted_ms": 4364.057,
+        "predicted_per_token_ms": 20.981043269230767,
+        "predicted_per_second": 47.662072241494556
+      },
+      "usage": {
+        "completion_tokens": 209,
+        "prompt_tokens": 268,
+        "total_tokens": 477,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+    },
+    {
+      "profile": "q3-85k-nomtp",
+      "task": "multi_function_edit",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 3.579058499999519,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 240,
+        "prompt_ms": 226.535,
+        "prompt_per_token_ms": 0.9438958333333333,
+        "prompt_per_second": 1059.4389387953297,
+        "predicted_n": 156,
+        "predicted_ms": 3270.683,
+        "predicted_per_token_ms": 21.10118064516129,
+        "predicted_per_second": 47.39071319354398
+      },
+      "usage": {
+        "completion_tokens": 156,
+        "prompt_tokens": 240,
+        "total_tokens": 396,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "def escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")"
+    },
+    {
+      "profile": "q3-85k-nomtp",
+      "task": "fresh_code",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"<BENCHMARK_OUTPUT>/qwen38-q3-85k-nomtp-fresh_code.py\", line 60, in <module>\n    g=merge_sorted_events([stream(),[c,d],[]]); assert count[0]==0; assert next(g) is a; assert count[0]==1; assert list(g)==[c,b,d]; assert list(merge_sorted_events([]))==[]\n                                                                           ^^^^^^^\n  File \"<BENCHMARK_OUTPUT>/qwen38-q3-85k-nomtp-fresh_code.py\", line 34, in merge_sorted_events\n    item = next(stream)\n           ^^^^^^^^^^^^\nTypeError: 'list' object is not an iterator\n",
+      "finish": "stop",
+      "wall_seconds": 10.136715399999957,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 113,
+        "prompt_ms": 137.746,
+        "prompt_per_token_ms": 1.218991150442478,
+        "prompt_per_second": 820.3505001960128,
+        "predicted_n": 475,
+        "predicted_ms": 9922.484,
+        "predicted_per_token_ms": 20.93351054852321,
+        "predicted_per_second": 47.77029622824284
+      },
+      "usage": {
+        "completion_tokens": 475,
+        "prompt_tokens": 113,
+        "total_tokens": 588,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nimport heapq\nfrom typing import Iterator, Dict, Any, Iterable\n\n\ndef merge_sorted_events(streams: Iterable[Iterator[Dict[str, Any]]]) -> Iterator[Dict[str, Any]]:\n    \"\"\"\n    Lazily merge any number of already-sorted iterables of dicts with numeric timestamp keys.\n    \n    Args:\n        streams: An iterable of iterators/generators, each yielding dicts with a 'timestamp' key.\n                 Each stream must be sorted in ascending order by timestamp.\n    \n    Yields:\n        Dicts in ascending timestamp order. Ties are broken by lower stream index first,\n        then by original order within that stream.\n    \"\"\"\n    # We need to track:\n    # - The current item from each stream\n    # - The stream index (for tie-breaking)\n    # - The position within the stream (for tie-breaking within same stream, though \n    #   since we process one at a time, the heap naturally handles order)\n    \n    # Each heap entry: (timestamp, stream_index, counter, iterator, current_item)\n    # We use a counter to ensure stable ordering for identical timestamps and stream indices\n    # (though within a single stream, items are processed sequentially, so this shouldn't \n    # be needed, but it's safe)\n    \n    heap = []\n    counter = 0  # For stable ordering\n    \n    # Initialize the heap with the first item from each stream\n    for stream_idx, stream in enumerate(streams):\n        try:\n            item = next(stream)\n            timestamp = item['timestamp']\n            heapq.heappush(heap, (timestamp, stream_idx, counter, stream, item))\n            counter += 1\n        except StopIteration:\n            pass\n    \n    while heap:\n        timestamp, stream_idx, _, stream, item = heapq.heappop(heap)\n        yield item\n        \n        # Try to get the next item from this stream\n        try:\n            next_item = next(stream)\n            next_timestamp = next_item['timestamp']\n            heapq.heappush(heap, (next_timestamp, stream_idx, counter, stream, next_item))\n            counter += 1\n        except StopIteration:\n            pass\n```"
+    }
+  ],
+  "no_mtp_chat": [
+    {
+      "thinking": false,
+      "wall_seconds": 8.173832500000572,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 34,
+        "prompt_ms": 119.634,
+        "prompt_per_token_ms": 3.5186470588235292,
+        "prompt_per_second": 284.2001437718374,
+        "predicted_n": 381,
+        "predicted_ms": 7987.459,
+        "predicted_per_token_ms": 21.01962894736842,
+        "predicted_per_second": 47.57457909956096
+      },
+      "usage": {
+        "completion_tokens": 381,
+        "prompt_tokens": 34,
+        "total_tokens": 415,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "When running a local large language model (LLM), the GPU and CPU act as specialized partners with distinct roles based on their architectural strengths. The GPU, with its massive parallel processing capabilities, is the primary workhorse for the computationally intensive tasks of the model. It handles the heavy matrix multiplications and vector operations that occur during the forward pass of the neural network, especially during the decoding phase where each new token is generated. Because LLMs consist of billions of parameters, these calculations are highly parallelizable, making the GPU significantly faster than the CPU for this specific workload.\n\nHowever, the CPU remains critical for managing the overall execution flow and handling non-parallelizable tasks. It is responsible for loading the model from storage, managing memory allocation, preprocessing input text into tokens, and post-processing the final output. Furthermore, the CPU orchestrates the interaction with the operating system and other applications, ensuring that the GPU is fed with the correct instructions at the right time. In some architectures, especially if the model is too large to fit entirely in the GPU's VRAM, the CPU's main memory may also be used to store parts of the model weights, requiring data to be shuttled back and forth between the two components.\n\nThe efficiency of this collaboration largely depends on memory bandwidth and the size of the model. If the model fits comfortably within the GPU’s video RAM (VRAM), the CPU’s role is minimized, resulting in fast inference speeds. If the model is larger than the available VRAM, it must be split between the GPU and CPU RAM. In this scenario, the system experiences a bottleneck because transferring data between the CPU and GPU is much slower than processing it directly on the GPU. Therefore, while the GPU does the heavy lifting of mathematical computations, the CPU ensures the system stays coordinated, making the seamless integration of both components essential for practical local LLM performance."
+        }
+      }
+    },
+    {
+      "thinking": true,
+      "wall_seconds": 8.716649699999834,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 74,
+        "prompt_ms": 172.92,
+        "prompt_per_token_ms": 2.3367567567567566,
+        "prompt_per_second": 427.94355771455014,
+        "predicted_n": 405,
+        "predicted_ms": 8501.276,
+        "predicted_per_token_ms": 21.042762376237622,
+        "predicted_per_second": 47.522277832174844
+      },
+      "usage": {
+        "completion_tokens": 405,
+        "prompt_tokens": 74,
+        "total_tokens": 479,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "When running a local language model, the CPU and GPU split the work based on what each is good at. The CPU handles the overall orchestration: loading the model, preparing the input text, coordinating memory, running non-GPU code, and feeding batches of data to the GPU. The GPU, especially a modern NVIDIA or AMD GPU, is used for the heavy mathematical work in the model, such as large matrix multiplications and tensor operations that make up most of the forward pass.\n\nThe CPU prepares the prompt into tokens and often sends the initial hidden states or embeddings to the GPU, where the actual “thinking” happens. During inference, the model processes one token at a time: it takes the current sequence state, runs it through the model layers on the GPU, and produces probabilities for the next token. If the model is small enough to fit entirely in GPU memory, most of the work stays on the GPU, which makes generation much faster. If the model is too large, parts of it may be offloaded to the CPU or system RAM, so the CPU helps store and occasionally compute those layers, while the GPU still handles as much of the computation as possible.\n\nIn practice, the performance depends heavily on memory and data movement. The GPU is fastest when the model weights and the attention cache fit in its VRAM and when data transfers between CPU and GPU are minimal. If the model is partially offloaded to CPU memory, generation can still work, but it becomes slower because the CPU and GPU have to pass data back and forth. In short: the CPU coordinates and manages the model, while the GPU accelerates the math that generates each new token.",
+          "reasoning_content": "We need answer user's request: Explain how CPU and GPU work together running local language model. Few clear paragraphs. Need final answer only. Need maybe mention CPU orchestrates, GPU accelerates matrix multiplications, memory transfer, quantization, offloading, batch/sequences, KV cache, memory limits. Keep clear, concise."
+        }
+      }
+    }
+  ],
+  "batch_adjusted_coding": [
+    {
+      "profile": "q3-85k-tuned",
+      "task": "bugfix",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 2.2996799999982613,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 268,
+        "prompt_ms": 511.022,
+        "prompt_per_token_ms": 1.9067985074626865,
+        "prompt_per_second": 524.4392609320147,
+        "predicted_n": 209,
+        "predicted_ms": 1742.999,
+        "predicted_per_token_ms": 8.379802884615385,
+        "predicted_per_second": 119.33454924529504,
+        "draft_n": 156,
+        "draft_n_accepted": 156
+      },
+      "usage": {
+        "completion_tokens": 209,
+        "prompt_tokens": 268,
+        "total_tokens": 477,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+    },
+    {
+      "profile": "q3-85k-tuned",
+      "task": "multi_function_edit",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.7643835999988369,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 240,
+        "prompt_ms": 328.107,
+        "prompt_per_token_ms": 1.3671125000000002,
+        "prompt_per_second": 731.4686977114172,
+        "predicted_n": 156,
+        "predicted_ms": 1361.695,
+        "predicted_per_token_ms": 8.785129032258064,
+        "predicted_per_second": 113.82872082221056,
+        "draft_n": 120,
+        "draft_n_accepted": 115
+      },
+      "usage": {
+        "completion_tokens": 156,
+        "prompt_tokens": 240,
+        "total_tokens": 396,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "def escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")"
+    },
+    {
+      "profile": "q3-85k-tuned",
+      "task": "fresh_code",
+      "passed": false,
+      "error": "incomplete code fence",
+      "finish": "length",
+      "wall_seconds": 17.91674149999926,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 113,
+        "prompt_ms": 216.864,
+        "prompt_per_token_ms": 1.9191504424778763,
+        "prompt_per_second": 521.0638925778368,
+        "predicted_n": 1600,
+        "predicted_ms": 17642.731,
+        "predicted_per_token_ms": 11.033602876797998,
+        "predicted_per_second": 90.6322269494445,
+        "draft_n": 1557,
+        "draft_n_accepted": 1079
+      },
+      "usage": {
+        "completion_tokens": 1600,
+        "prompt_tokens": 113,
+        "total_tokens": 1713,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nimport heapq\nfrom typing import Iterator, Dict, Any, Iterable\n\n\ndef merge_sorted_events(streams: Iterable[Iterator[Dict[str, Any]]]) -> Iterator[Dict[str, Any]]:\n    \"\"\"\n    Lazily merge any number of already-sorted iterables of dicts with numeric timestamp keys.\n    \n    Args:\n        streams: An iterable of iterators/generators, each yielding dicts with a numeric timestamp key.\n                 Each stream is assumed to be sorted in ascending order by timestamp.\n    \n    Yields:\n        Dicts in ascending timestamp order. Ties are broken by lower stream index first,\n        then by original order within that stream.\n    \"\"\"\n    # We need to track:\n    # - The current item from each stream\n    # - The stream index\n    # - The position within the stream (to maintain original order for ties)\n    \n    # We'll use a heap with entries: (timestamp, stream_index, position_in_stream, item)\n    # But we need to be careful: we can't store the item directly if we want to preserve\n    # the original dict objects. Actually, we can store references.\n    \n    # However, the requirement says \"read at most one pending event per stream\" - this means\n    # we should only have one item from each stream in the heap at a time.\n    \n    # Let's create an iterator for each stream and track its index.\n    # We'll use a heap where each entry is (timestamp, stream_index, item)\n    # But for ties, we need to preserve original order within a stream. Since we only have\n    # one item per stream in the heap at a time, and we process them in order, the original\n    # order within a stream is naturally preserved because we pull items sequentially.\n    \n    # Wait, let me re-read: \"ties keep lower stream index first and original order within that stream\"\n    # This means if two items have the same timestamp, the one from the lower-indexed stream comes first.\n    # If multiple items from the same stream have the same timestamp, they come in their original order.\n    # Since we process each stream sequentially, this is naturally handled.\n    \n    # The heap entry should be: (timestamp, stream_index, item)\n    # But we need to be careful about comparison. If timestamps are equal, we compare stream_index.\n    # If stream_index is also equal (which shouldn't happen since each stream has unique index), \n    # we'd need a tiebreaker. But since we only have one item per stream in the heap, stream_index\n    # will be unique among heap entries.\n    \n    # Actually, we need to handle the case where we need to pull the next item from a stream\n    # after yielding the current one.\n    \n    # Let's use a different approach:\n    # 1. Create an iterator for each stream\n    # 2. For each stream, get the first item (if any)\n    # 3. Push (timestamp, stream_index, item, iterator) onto the heap\n    # 4. Pop the smallest, yield the item\n    # 5. Get the next item from that stream's iterator, push it if available\n    \n    # But we can't store the iterator in the heap entry directly because we need to compare.\n    # Let's use a wrapper or just track iterators separately.\n    \n    # Better approach:\n    # - Create a list of (iterator, stream_index) pairs\n    # - For each, try to get the first item\n    # - Push (timestamp, stream_index, item) onto heap\n    # - When we pop, we need to know which iterator to advance\n    \n    # Let's use a class or just track iterators in a dict/list.\n    \n    # Actually, let's use a simpler approach with a heap of tuples:\n    # (timestamp, stream_index, item)\n    # And maintain a list of iterators indexed by stream_index.\n    \n    # But we need to be careful: the heap comparison will compare item if timestamp and stream_index\n    # are equal, which could fail if items are not comparable. So we should avoid that.\n    \n    # Let's use a counter as a tiebreaker to ensure we never compare items:\n    # (timestamp, stream_index, counter, item)\n    # But actually, since stream_index is unique per stream, and we only have one item per stream\n    # in the heap at a time, we won't have two entries with the same stream_index. So comparing\n    # (timestamp, stream_index) should be sufficient, and we won't need to compare items.\n    \n    # Wait, but if two different streams have the same timestamp, we compare stream_index, which\n    # is fine. If the same stream somehow had two items in the heap (which it shouldn't), we'd have\n    # a problem. But we ensure only one item per stream is in the heap at a time.\n    \n    # Let's implement it:\n    \n    # Create iterators for each stream\n    stream_iterators = []\n    for stream in streams:\n        stream_iterators.append(iter(stream))\n    \n    # Create the heap\n    heap = []\n    \n    # Initialize the heap with the first item from each non-empty stream\n    for idx, it in enumerate(stream_iterators):\n        try:\n            item = next(it)\n            # Extract timestamp - the problem says \"numeric timestamp keys\" but doesn't specify\n            # which key. Let me re-read...\n            # \"dicts with numeric timestamp keys\" - this is ambiguous. Does it mean the dict has\n            # a key that is a timestamp? Or that the values are timestamps?\n            # Looking at the problem again: \"already-sorted iterables of dicts with numeric timestamp keys\"\n            # I think this means each dict has a timestamp, and we need to sort by that timestamp.\n            # But which key? The problem doesn't specify.\n            \n            # Hmm, this is a problem. Let me re-read the problem statement.\n            # \"dicts with numeric timestamp keys\" - maybe it means the keys are timestamps? That doesn't\n            # make sense for sorting.\n            \n            # I think the most reasonable interpretation is that each dict has a field (key) that contains\n            # a numeric timestamp, and we sort by that. But the problem doesn't specify which key.\n            \n            # Wait, maybe \"timestamp keys\" means the keys themselves are timestamps? Like {123: \"event1\", 456: \"event2\"}?\n            # That also doesn't make sense for a single dict.\n            \n            # Let me assume that each dict has a specific key for the timestamp. Since the problem doesn't\n            # specify, I'll assume it's a common key like 'timestamp' or 'time'. But that's not robust.\n            \n            # Actually, re-reading: \"numeric timestamp keys\" - I think this might mean that the dicts\n            # have keys that are numeric timestamps, but that's unusual.\n            \n            # Let me look at this differently. Maybe the problem means that the iterables are sorted\n            # by some numeric timestamp field in the dicts, and we need to merge them. The exact key\n            # name isn't specified, so perhaps we should assume a standard key.\n            \n            # Given the ambiguity, I'll assume the timestamp is stored under a key called"
+    }
+  ],
+  "batch_adjusted_chat": [
+    {
+      "thinking": false,
+      "wall_seconds": 6.294461100000262,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 34,
+        "prompt_ms": 140.509,
+        "prompt_per_token_ms": 4.132617647058823,
+        "prompt_per_second": 241.9773822317432,
+        "predicted_n": 413,
+        "predicted_ms": 6067.722,
+        "predicted_per_token_ms": 14.72748058252427,
+        "predicted_per_second": 67.90027624864817,
+        "draft_n": 537,
+        "draft_n_accepted": 233
+      },
+      "usage": {
+        "completion_tokens": 413,
+        "prompt_tokens": 34,
+        "total_tokens": 447,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "When running a local large language model (LLM), the GPU and CPU act as specialized partners with distinct roles based on their architectural strengths. The GPU, with its massive parallel processing capabilities, is the primary workhorse for the computationally intensive tasks of the model. It handles the heavy lifting involved in the matrix multiplications and vector operations that occur during the forward pass of the neural network, especially for larger models where the weight matrices are too big to fit efficiently on the CPU. Meanwhile, the CPU acts as the conductor and manager, handling control flow, pre-processing inputs, post-processing outputs, and managing memory. It also takes over for tasks that are not parallelizable or for smaller models that can fit entirely in system memory, executing them sequentially with high efficiency.\n\nThe interaction between the two often involves data transfer, which can be a bottleneck if not managed well. In many modern setups, the model weights are stored in system memory (RAM) connected to the CPU, while the active computations are offloaded to the GPU’s dedicated Video RAM (VRAM). If the model is too large to fit entirely in VRAM, techniques like model offloading are used. In this scenario, the model is split into layers: the layers currently needed for computation are moved to the GPU, processed, and then the results are sent back to the CPU, while other layers remain in CPU memory. This dynamic shuffling ensures that the most powerful processing happens where it’s needed, even if the total model size exceeds the GPU’s memory capacity.\n\nUltimately, the efficiency of this collaboration depends on how well the software framework, such as PyTorch or TensorFlow, optimizes these transfers and load balancing. A well-optimized local LLM inference pipeline minimizes the time spent moving data back and forth, allowing the GPU to spend most of its time crunching numbers while the CPU handles the logistical overhead. This division of labor allows users to run sophisticated AI models on consumer hardware, leveraging the GPU’s raw power for speed and the CPU’s versatility for flexibility and management."
+        }
+      }
+    },
+    {
+      "thinking": true,
+      "wall_seconds": 8.393571199998405,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 74,
+        "prompt_ms": 254.561,
+        "prompt_per_token_ms": 3.4400135135135135,
+        "prompt_per_second": 290.6965324617675,
+        "predicted_n": 512,
+        "predicted_ms": 8071.153,
+        "predicted_per_token_ms": 15.794819960861057,
+        "predicted_per_second": 63.31189608225739,
+        "draft_n": 712,
+        "draft_n_accepted": 273
+      },
+      "usage": {
+        "completion_tokens": 512,
+        "prompt_tokens": 74,
+        "total_tokens": 586,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "length",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "When you run a local language model, the CPU and GPU usually split the work based on what each is best at. The CPU handles the general orchestration: loading the model from disk, managing memory, preprocessing the input text, calling the model, collecting the output, and handling anything that is not a large parallel math operation. The GPU, meanwhile, is used for the heavy numerical computation that dominates inference, especially the large matrix multiplications and tensor operations in the transformer layers.\n\nDuring inference, the text is first tokenized into a sequence of numbers. If the model fits in the GPU’s memory, the model weights are loaded into GPU memory, and the GPU computes the next token—or a batch of tokens—using those weights. This is where most of the speed comes from: the GPU can perform many floating-point operations in parallel, which is ideal for the repetitive arithmetic in neural network layers. The CPU still sends the input sequence to the GPU, waits for the result, and then decides what to do next, such as sampling a token and continuing.\n\nIf the model is too large to fit entirely on the GPU, the CPU and GPU share the burden through offloading. Some weights, or even whole layers, may stay in system RAM on the CPU, while the GPU processes only the parts that can fit in its memory. The CPU can feed chunks of the computation to the GPU, and the GPU may send intermediate results back for further processing. This makes the model runnable on consumer hardware, but it is slower because data has to move back and forth",
+          "reasoning_content": "We need answer user's request: \"Explain how a CPU and GPU work together when running a local language model. Use a few clear paragraphs.\" Need final only explanation. Need likely concise but thorough. We can mention CPU orchestration, memory, data loading, pre/post processing, token generation control, maybe CPU runs smaller models or offloading, GPU accelerates matrix multiplications/attention. Mention VRAM constraints, weights stored on GPU if fits; otherwise CPU RAM and offload layers, transfer over PCIe, bottlenecks. Also mixed: Python interpreter, tokenizer, sampling, scheduling. For local LLM inference: model weights loaded into GPU memory if possible; each token forward pass uses GPU compute. If model larger than GPU, CPU holds some weights or KV cache, GPU processes chunks; slow due to data transfer. CPU also manages system, file I/O, preprocessing, and maybe CPU-only fallback. Use clear paragraphs, maybe 3. No need citations."
+        }
+      }
+    }
+  ],
+  "batch_adjusted_context_error": "300-second HTTP timeout; server stopped at 65024 processed tokens; reverted",
+  "final_chat": [
+    {
+      "thinking": false,
+      "wall_seconds": 6.362478700000793,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 34,
+        "prompt_ms": 262.021,
+        "prompt_per_token_ms": 7.7065,
+        "prompt_per_second": 129.7605917082982,
+        "predicted_n": 413,
+        "predicted_ms": 6073.718,
+        "predicted_per_token_ms": 14.742033980582525,
+        "predicted_per_second": 67.83324480985122,
+        "draft_n": 537,
+        "draft_n_accepted": 233
+      },
+      "usage": {
+        "completion_tokens": 413,
+        "prompt_tokens": 34,
+        "total_tokens": 447,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "When running a local large language model (LLM), the GPU and CPU act as specialized partners with distinct roles based on their architectural strengths. The GPU, with its massive parallel processing capabilities, is the primary workhorse for the computationally intensive tasks of the model. It handles the heavy lifting involved in the matrix multiplications and vector operations that occur during the forward pass of the neural network, especially for larger models where the weight matrices are too big to fit efficiently on the CPU. Meanwhile, the CPU acts as the conductor and manager, handling control flow, pre-processing inputs, post-processing outputs, and managing memory. It also takes over for tasks that are not parallelizable or for smaller models that can fit entirely in system memory, executing them sequentially with high efficiency.\n\nThe interaction between the two often involves data transfer, which can be a bottleneck if not managed well. In many modern setups, the model weights are stored in system memory (RAM) connected to the CPU, while the active computations are offloaded to the GPU’s dedicated Video RAM (VRAM). If the model is too large to fit entirely in VRAM, techniques like model offloading are used. In this scenario, the model is split into layers: the layers currently needed for computation are moved to the GPU, processed, and then the results are sent back to the CPU, while other layers remain in CPU memory. This dynamic shuffling ensures that the most powerful processing happens where it’s needed, even if the total model size exceeds the GPU’s memory capacity.\n\nUltimately, the efficiency of this collaboration depends on how well the software framework, such as PyTorch or TensorFlow, optimizes these transfers and load balancing. A well-optimized local LLM inference pipeline minimizes the time spent moving data back and forth, allowing the GPU to spend most of its time crunching numbers while the CPU handles the logistical overhead. This division of labor allows users to run sophisticated AI models on consumer hardware, leveraging the GPU’s raw power for speed and the CPU’s versatility for flexibility and management."
+        }
+      }
+    },
+    {
+      "thinking": true,
+      "wall_seconds": 8.11371280000094,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 74,
+        "prompt_ms": 201.921,
+        "prompt_per_token_ms": 2.728662162162162,
+        "prompt_per_second": 366.47995998435033,
+        "predicted_n": 512,
+        "predicted_ms": 7846.782,
+        "predicted_per_token_ms": 15.355737769080235,
+        "predicted_per_second": 65.12223737068265,
+        "draft_n": 716,
+        "draft_n_accepted": 271
+      },
+      "usage": {
+        "completion_tokens": 512,
+        "prompt_tokens": 74,
+        "total_tokens": 586,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "length",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "When a local language model runs on a computer, the CPU is the overall manager. It handles the parts of the program that are general-purpose: reading the model files from storage, managing the user interface, preparing the text into tokens, tracking memory usage, and coordinating the computation. It also runs any parts of the process that do not fit on the GPU, such as system tasks or certain operations that are slower or less efficient in GPU hardware.\n\nThe GPU, by contrast, is specialized for doing many numerical operations at once. Language models rely heavily on large matrix multiplications and vector calculations, especially when processing tokens and building attention scores. If the model is small enough to fit in the GPU’s memory, most of the heavy math can be offloaded to the GPU. This is why a modern GPU can make local inference much faster than a CPU alone: it has many parallel cores, high memory bandwidth, and accelerators optimized for AI workloads.\n\nThe CPU and GPU communicate through the system bus, such as PCIe. The CPU sends batches of data to the GPU, the GPU performs the calculations, and the results are sent back. In practice, the model is often split between the two devices. If the GPU has enough video memory, the entire model may run there; if not, the larger layers or parts of the model may stay in system RAM and run on the CPU, while only some layers run on the GPU. The CPU then orchestrates this “offloading” by moving pieces of the model or intermediate data as needed.\n\nSo, in a local language model setup, the CPU acts as the conductor and the GPU acts as the high-speed math engine. The CPU handles loading, scheduling, input/output, memory management",
+          "reasoning_content": "We need answer user's request: \"Explain how a CPU and GPU work together when running a local language model. Use a few clear paragraphs.\" Need final only explanation. Need likely concise but enough. Could mention CPU orchestrates, loads model, manages memory, handles I/O, preprocessing; GPU does matrix multiplications for inference if model fits, CUDA cores/Tensor cores; data transfers via PCIe, offloading, CPU fallback for layers not on GPU or when memory insufficient; KV cache, batching; performance depends on VRAM, bandwidth; quantization, split layers. Need clear paragraphs. No need citations. Ensure local language model context. Maybe mention hybrid execution: CPU may handle some layers if GPU VRAM limited. Also local means on-device, not cloud. Need avoid overcomplication."
+        }
+      }
+    }
+  ]
+}

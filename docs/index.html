@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Measured Qwen inference experiments on RTX 5070 Ti: benchmarks, context, MTP, DFlash2, lookup, and portable setup."><title>QwenAtHome — experiments and benchmarks</title><style>
+:root{color-scheme:dark;--bg:#10151c;--panel:#18212d;--ink:#e9eef5;--muted:#a9b9cc;--accent:#78e1c4;--line:#334155}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}a{color:var(--accent);text-underline-offset:4px}a:hover{color:#fff}header{padding:52px 6vw 36px;border-bottom:1px solid var(--line);background:linear-gradient(110deg,#172b35,#10151c)}header p{max-width:780px;color:var(--muted);font-size:18px}.eyebrow,.section-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}h1{font-size:clamp(36px,6vw,64px);line-height:1.1;margin:14px 0}h2{font-size:30px;line-height:1.25}h3{font-size:22px;margin-top:32px}.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1500px;margin:auto}nav{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:32px 20px}nav a{display:block;padding:7px 12px;color:var(--muted);text-decoration:none;font-size:14px;border-left:2px solid transparent}nav a:hover{border-color:var(--accent);background:var(--panel)}main{min-width:0;padding:0 42px}section{padding:40px 0;border-bottom:1px solid var(--line)}section>h2:first-of-type{margin-top:10px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;margin:24px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;vertical-align:top;padding:13px 16px;border-bottom:1px solid var(--line)}th{background:#223143;color:#fff}tr:last-child td{border-bottom:0}tbody tr:nth-child(even){background:#151e29}code{font: .86em/1.6 Consolas,monospace;overflow-wrap:anywhere;background:#253244;padding:2px 5px;border-radius:4px}pre{overflow:auto;padding:20px;background:#0a1018;border:1px solid var(--line);border-radius:10px}pre code{background:none;padding:0;white-space:pre;overflow-wrap:normal}li{margin:7px 0}p{overflow-wrap:anywhere}.badge{display:inline-block;border:1px solid var(--line);border-radius:24px;padding:5px 12px;margin:5px 8px 0 0;font-size:13px;color:var(--muted)}footer{padding:30px 6vw;color:var(--muted);font-size:13px}@media(max-width:900px){.layout{display:block}nav{position:static;max-height:none;display:flex;gap:4px;overflow:auto;padding:18px;flex-wrap:wrap}nav a{padding:5px 9px;border:1px solid var(--line);border-radius:6px}main{padding:0 20px}header{padding:35px 20px}section{padding:30px 0}}@media print{:root{color-scheme:light;--bg:white;--ink:#111;--muted:#444;--line:#ccc;--accent:#075f54}body,header{background:white}nav{display:none}.layout{display:block}main{padding:0}section{break-before:page}pre,code,th,tbody tr:nth-child(even){background:#f4f4f4;color:#111}a{color:#075f54}.table-wrap{overflow:visible}th,td{padding:7px;font-size:10px}}
+</style></head><body><header><div class="eyebrow">Local inference field notes · November 2026</div><h1>QwenAtHome</h1><p>Measured performance, reproducible settings, and the failures that matter. One RTX 5070 Ti; several models and inference paths.</p><span class="badge">RTX 5070 Ti · 16 GB</span><span class="badge">Ryzen 7 7800X3D · 64 GB RAM</span><span class="badge">Offline documentation · no external assets</span></header><div class="layout"><nav aria-label="Documentation"><a href="#overview">Overview</a><a href="#experiments">Experiments</a><a href="#methodology">Methodology</a><a href="#setup">Setup</a><a href="#research">Research</a><a href="#privacy">Privacy</a><a href="#report-0">Qwen38-validation-report</a><a href="#report-1">Qwen38-Q3-85K-report</a><a href="#report-2">QwenFlash-benchmark-report</a><a href="#report-3">Huihui-Qwen38-report</a></nav><main><section id="overview"><div class="section-label">Overview</div><h2>QwenAtHome</h2>
+<p>Measured local Qwen inference experiments on one RTX 5070 Ti 16 GB: llama.cpp, Strata, MTP, DFlash2, prompt lookup, quantization, and context limits.</p>
+<p><strong><a href="#overview">Open the standalone HTML documentation</a></strong> by downloading the repository and opening that file locally. GitHub displays HTML source; GitHub Pages is not configured by this change. The HTML needs no server, JavaScript, external assets, or network access to read.</p>
+<h3>Hardware and scope</h3>
+<ul>
+<li>GPU: one NVIDIA GeForce RTX 5070 Ti, nominal 16 GB VRAM.</li>
+<li>CPU: AMD Ryzen 7 7800X3D, 8 cores / 16 threads; AVX-512 detected by Strata.</li>
+<li>RAM: 64 GB DDR5-6000, 2 x 32 GB.</li>
+<li>OS: Windows 11 Pro. Models stored on a Crucial P3 NVMe SSD.</li>
+<li>Measured November 4–5, 2026. No rented GPU or second GPU was benchmarked locally.</li>
+</ul>
+<h3>Results at a glance</h3>
+<div class="table-wrap"><table><thead><tr><th>Model and profile</th><th>Context allocation</th><th>Representative decode speed</th><th>What was actually checked</th></tr></thead><tbody>
+<tr><td>Qwen3.8-27B UD-IQ4_XS, ordinary</td><td>32,768</td><td>~51 tok/s</td><td>3/3 focused coding tasks passed</td></tr>
+<tr><td>Same, MTP x3</td><td>32,768</td><td>104–130 tok/s on focused coding</td><td>3/3 passed; a separate prose fixture was ~80 tok/s</td></tr>
+<tr><td>Same, MTP + lookup</td><td>32,768</td><td>244 tok/s on TTL patch; 638 tok/s on a separate mostly-copy edit</td><td>3/3 focused tasks passed; high copy speed is workload-specific</td></tr>
+<tr><td>Qwen3.8-27B UD-Q3_K_XL, MTP x3</td><td>84,992</td><td>65–68 tok/s on short conversation fixtures</td><td>2/3 coding tasks passed; near-84K retrieval passed</td></tr>
+<tr><td>Qwen3.8-Flash-Next IQ2_XS, Strata</td><td>32,768</td><td>121 tok/s explanation median; 164–181 on successful edit tasks</td><td>7/9 repeated coding checks passed</td></tr>
+<tr><td>Huihui Qwen3.8-27B GSQ-RCO IQ3_S-MTP</td><td>32,768</td><td>67 tok/s thinking chat; 107–113 on successful edits</td><td>2/3 coding tasks; near-32K retrieval; one basic security review</td></tr>
+</tbody></table></div>
+<p><strong>These are different workloads, sample counts, cache states, and output lengths. This is an experiment log, not a controlled cross-model leaderboard. Decode speed excludes prompt processing.</strong></p>
+<h3>Documentation</h3>
+<ul>
+<li><a href="#experiments">Experiment log, model inventory, and tuning sweeps</a></li>
+<li><a href="#methodology">Methodology and reproducibility</a></li>
+<li><a href="#setup">Portable launch profiles and API setup</a></li>
+<li><a href="#research">External research, GPU comparisons, and untested ideas</a></li>
+<li><a href="#privacy">Privacy and publication scope</a></li>
+<li><a href="#report-0">IQ4_XS report</a></li>
+<li><a href="#report-1">Q3_K_XL / 85K report</a></li>
+<li><a href="#report-2">Flash / Strata report</a></li>
+<li><a href="#report-3">Huihui report</a></li>
+<li><a href="../data/">Sanitized raw measurements</a> and <a href="../data/sweeps/">exploratory sweeps</a></li>
+</ul>
+<h3>What held up</h3>
+<p>MTP helped these short coding fixtures. Context lookup helped most when output copied input. Prefix caching made repeated long-context requests dramatically quicker. A loaded model and a configured context limit did not establish stable long-context performance. Fresh-code failures occurred despite good generation speeds.</p>
+<p>The last configured profile in this record was Huihui at 32K with Q8 KV and MTP. This repository does not monitor or control a running server. It contains no model weights, inference binaries, credentials, or personal chat exports.</p></section><section id="experiments"><div class="section-label">Experiments</div><h2>Experiments and retained evidence</h2>
+<h3>Model inventory</h3>
+<div class="table-wrap"><table><thead><tr><th>Artifact</th><th>File size, decimal bytes</th><th>Runtime / role</th></tr></thead><tbody>
+<tr><td>Qwen3.8-27B-UD-IQ4_XS.gguf</td><td>14,252,845,984</td><td>llama.cpp target</td></tr>
+<tr><td>Qwen3.8-27B-UD-Q3_K_XL.gguf</td><td>13,146,393,504</td><td>llama.cpp target</td></tr>
+<tr><td>Qwen3.8-27B-DFlash2-Q4_K_M.gguf</td><td>1,143,006,816</td><td>optional speculative draft</td></tr>
+<tr><td>Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S-mtp.gguf</td><td>12,120,016,416</td><td>llama.cpp target with embedded MTP</td></tr>
+<tr><td>Qwen3.8-Flash-Next GSQ-RCO IQ2_XS shards</td><td>39,225,954,592 + 28,800,138,432</td><td>Strata native pack; separate prepared MTP files</td></tr>
+</tbody></table></div>
+<p>File size is not resident VRAM or RAM use. Flash&#x27;s expert caching and lookup tables differ from the dense 27B models. GGUF contains weights and metadata; the engine determines execution and memory management.</p>
+<p>The Q3 target SHA256 is <code>8c2a45ff85e7674ca185ec8eb6cdeab0e617ed9d8018caed0b64380eb2a67a5e</code>. Huihui is <code>eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19</code>. Downloads were verified during setup; checksums identify artifacts, not quality.</p>
+<h3>Sequence of experiments</h3>
+<ol>
+<li>Earlier Qwen3.6-35B-A3B / small-VRAM exploration was discussed. No comparable retained results support a benchmark table for it; do not treat the early 8 GB discussion as the final machine specification.</li>
+<li>Installed official llama.cpp b12110 (<code>cd959bae9</code>), Windows CUDA 13.4, and Qwen3.8-27B UD-IQ4_XS.</li>
+<li>Compared ordinary decoding, MTP depths 1/3/5, full GPU offload, and Q4 main KV. Tested DFlash2 and MTP plus ngram lookup.</li>
+<li>Validated three focused coding tasks and beginning/middle/end retrieval near 8K, 16K, and 32K. Saved separate general and editing profiles.</li>
+<li>Downloaded/prepared Flash IQ2_XS for Strata terminal 0.2.7 / engine 0.1.52. Stopped the other engine before loading it. Closing a large competing application freed RAM before measurement; concurrent application load materially affected fit.</li>
+<li>Increased Strata&#x27;s VRAM reserve to 1,500 MiB, then ran three coding rounds, everyday fixtures, and context retrieval. The initial low-headroom trial is retained separately and excluded from final medians.</li>
+<li>Attempted Flash at 64K. It reached ready but warned of 1.3 GiB Windows commit headroom versus 2.0 GiB planned allocations plus reserve. No 64K retrieval was submitted. Restored 32K. No page-file change was made.</li>
+<li>Returned to dense 27B, then downloaded Q3_K_XL and allocated 84,992 context. Near-84K retrieval passed but took 237.38 seconds cold and 1.44 seconds resumed; sampled VRAM headroom fell to 115 MiB.</li>
+<li>Disabled MTP at 85K: short generation was about 48 tok/s. Tried main microbatch 64 / draft microbatch 16: faster short edits (114–119 tok/s), but long prefill slowed above 60K and hit the 300-second HTTP timeout. Server released at 65,024 processed tokens. Reverted to microbatch 128; final chat measured 67.8 off / 65.1 on. Exact paging cause was not conclusively isolated.</li>
+<li>Downloaded Huihui GSQ-RCO IQ3_S-MTP, verified SHA256, and ran 32K with Q8 main and draft KV. Chat completed at 67.4 tok/s; two edits passed; the fresh generator failed; near-32K retrieval passed with 860 MiB minimum sampled free VRAM.</li>
+</ol>
+<h3>Exploratory IQ4_XS sweep</h3>
+<p>Two short fixtures, each capped at 256 generated tokens: interval-merging code plus explanation, and memory-bandwidth prose. These are ungraded exploratory generations, not the three functional coding checks. Historical sweep files do not capture every launch argument; use them as evidence of the recorded runs, not perfectly controlled ablations.</p>
+<div class="table-wrap"><table><thead><tr><th>Recorded run</th><th>Code fixture tok/s</th><th>Prose fixture tok/s</th></tr></thead><tbody>
+<tr><td>Baseline</td><td>50.4</td><td>50.4</td></tr>
+<tr><td>MTP disabled, later run</td><td>50.9</td><td>50.9</td></tr>
+<tr><td>MTP 1 / full-GPU record</td><td>81.2</td><td>71.7</td></tr>
+<tr><td>MTP 3 / full-GPU record</td><td>110.8</td><td>79.2</td></tr>
+<tr><td>MTP 3 / Q4 KV record</td><td>114.1</td><td>80.4</td></tr>
+<tr><td>MTP 5</td><td>98.1</td><td>58.6</td></tr>
+<tr><td>DFlash2</td><td>105.7</td><td>48.6</td></tr>
+</tbody></table></div>
+<p>The <code>mtp1</code> and <code>mtp1-fullgpu</code> records duplicate the same timing values, so they are not independent repetitions. MTP 5 did not improve these fixtures. DFlash2 used draft depth 7, Q8 draft cache, draft microbatch 32, and the Q4_K_M draft file; its results do not generalize to every DFlash2 implementation.</p>
+<h3>Lookup and copy-heavy edits</h3>
+<p>The saved mostly-copy edit produced 703 tokens: lookup recorded 638.1 decode tok/s with <code>exact_edit=true</code>, versus 134.5 with DFlash2. The lookup prompt took 645 ms and generation 1,100 ms; 703 / 1.745 seconds is about 403 output tokens/s including engine prompt time, before HTTP overhead. A smaller copy fixture recorded MTP 131.0 and DFlash2 137.1 tok/s.</p>
+<p>These are small synthetic fixtures, not sustained repository-agent runs. A previously mentioned higher repeat was not separately retained in the published measurements; 638.1 is the auditable saved lookup result. A copied output at hundreds of tokens/s does not establish fresh-code or conversation speed.</p>
+<h3>What was not established</h3>
+<ul>
+<li>No end-to-end Hermes coding or cybersecurity-agent benchmark.</li>
+<li>No verified refusal-rate evaluation of Huihui.</li>
+<li>No local Strata 0.1.56 upgrade, Flash IQ3_S benchmark, or <code>--kv-grow</code> A/B.</li>
+<li>No long-context reliability guarantee from a single successful needle lookup.</li>
+<li>No advanced cybersecurity capability result: the Huihui review was a synthetic SQL-injection / XSS example. It found both core issues, added unwanted Markdown fences, and overstated some SQL impact.</li>
+<li>No local 3090, 4090, 5090, DGX Spark, or RTX PRO 6000 result. Those appeared only in external research.</li>
+</ul></section><section id="methodology"><div class="section-label">Methodology</div><h2>Methodology and reproduction</h2>
+<h3>What each number means</h3>
+<ul>
+<li>Decode tok/s: the engine&#x27;s <code>timings.predicted_per_second</code>, excluding prompt processing.</li>
+<li>Prompt processing: <code>prompt_ms</code> / <code>prompt_per_second</code>, covering newly read tokens as reported by that engine.</li>
+<li>Wall time: HTTP request elapsed time when explicitly captured; it includes input processing and generation.</li>
+<li>Cached tokens: reported prompt reuse, not newly read input. Prefix reuse reduces repeated prefill; lookup proposes output tokens copied from context. They are distinct optimizations.</li>
+<li>Context allocation: the configured total window, not proof that a benchmark filled it. Prompt plus generation must fit.</li>
+<li>Thinking: generated reasoning can consume output tokens and time. Thinking-on results cannot be equated with thinking-off answers of different lengths.</li>
+</ul>
+<h3>Coding fixtures</h3>
+<p>Three unique synthetic Python tasks: TTL expiry and zero TTL; CSV delimiter/escaping propagation without input mutation; lazy stable merging of sorted event iterables. Each has a focused executable check. Generated modules were AST-screened and run in separate Python processes with an eight-second timeout. That filter is not a security sandbox; use a disposable VM/container if executing untrusted model output.</p>
+<p>The <a href="../benchmarks/focused_checks.py">retained harness</a> uses the Python standard library. Examples, with an already-running local llama.cpp server:</p>
+<pre><code>$env:BENCH_URL = &#x27;http://127.0.0.1:8081&#x27;
+$env:MODEL_ALIAS = &#x27;Huihui-Qwen3.8-27B&#x27;
+$env:BENCH_OUTPUT_DIR = &#x27;benchmark-output&#x27;
+python benchmarks/focused_checks.py my-run
+$env:CONTEXT_RESULTS = &#x27;my-context-results.json&#x27;
+python benchmarks/focused_checks.py context 32000</code></pre>
+<p>This harness calls llama.cpp <code>/tokenize</code> and <code>/detokenize</code>; it is not a drop-in Strata context harness. Strata&#x27;s context inputs were built with its pack&#x27;s local tokenizer because those HTTP endpoints returned 404. The public harness writes results and screened modules under <code>BENCH_OUTPUT_DIR</code>; use a unique run name to avoid overwriting them. It does not launch or stop servers.</p>
+<p>Coding requests used temperature 0, seed 42, thinking disabled, and up to 1,600 generated tokens. A failure can be a runtime error or output-cap truncation, not just slow inference. Raw JSON includes completion status, outputs, and validation errors.</p>
+<h3>Context fixtures</h3>
+<p>Archive-like filler contained three reference values near the start, middle, and end. A follow-up requested the same values with reordered keys. JSON values were checked after extracting an object, so replies with Markdown fences could pass semantic retrieval while violating strict JSON formatting. Results say retrieval passed, not that strict structured-output compliance passed.</p>
+<p>Near-32K cold input was 31,916 tokens; near-84K cold input was 83,916. Follow-ups reused most previous tokens. GPU memory was sampled about every 0.75 seconds; short peaks may be missed. Most context checks were one cold request and one follow-up per size.</p>
+<h3>Statistical limits</h3>
+<p>IQ4_XS coding checks were one generation per task per profile. Flash&#x27;s final short-task values are medians of three sequential rounds on a single engine; expert caches warm across rounds, and unique input prefixes prevented full prompt reuse. Q3 and Huihui were small single-request comparisons. Outputs, precision, sampling, reasoning, and context allocation differ, so no universal model ranking or guaranteed speedup follows.</p>
+<p>No fresh GPU inference was run to prepare these public documents. Existing retained measurements were summarized and sanitized. The public code keeps the same three focused checks, rather than expanding the evaluation suite.</p></section><section id="setup"><div class="section-label">Setup</div><h2>Running the recorded profiles</h2>
+<h3>Requirements</h3>
+<p>The recorded dense-model runtime was official llama.cpp b12110 (<code>cd959bae9</code>), Windows CUDA 13.4. Download the corresponding runtime and selected GGUF yourself; neither binaries nor weights are in this repository. Later builds may change CLI names, output, and performance. Verify downloaded checksums against the model publisher.</p>
+<p>Set <code>LLAMA_SERVER</code> to the executable&#x27;s full path and <code>MODEL_DIR</code> to the directory holding the GGUF files. For example, in PowerShell, using your actual locations:</p>
+<pre><code>$env:LLAMA_SERVER = Join-Path $PWD &#x27;runtime/llama-server.exe&#x27;
+$env:MODEL_DIR = Join-Path $PWD &#x27;models&#x27;
+&amp; ./profiles/Start-Huihui-Qwen38.cmd</code></pre>
+<p>Keep the server terminal open. Open http://127.0.0.1:8081 after it loads. Stop the existing server before launching another; every profile uses the same port. The scripts check required environment variables but do not download models, kill processes, alter clocks, or change the page file.</p>
+<h3>Profiles</h3>
+<div class="table-wrap"><table><thead><tr><th>Launcher</th><th>Target</th><th>Context</th><th>Main KV</th><th>Speculation</th></tr></thead><tbody>
+<tr><td>Start-Qwen38-General.cmd</td><td>Unsloth UD-IQ4_XS</td><td>32,768</td><td>Q4_0</td><td>MTP 3</td></tr>
+<tr><td>Start-Qwen38.cmd</td><td>Unsloth UD-IQ4_XS</td><td>32,768</td><td>Q4_0</td><td>MTP 3 + ngram-simple key 8 / draft 64</td></tr>
+<tr><td>Start-Qwen38-Q3-85K.cmd</td><td>Unsloth UD-Q3_K_XL</td><td>84,992</td><td>Q4_0</td><td>MTP 3</td></tr>
+<tr><td>Start-Huihui-Qwen38.cmd</td><td>Huihui GSQ-RCO IQ3_S-mtp</td><td>32,768</td><td>Q8_0</td><td>MTP 3</td></tr>
+</tbody></table></div>
+<p>Shared: full GPU layers, Flash Attention, GPU sampling, one slot, batch 512, microbatch 128, eight CPU threads, Q8_0 draft KV. Interactive defaults: temperature 1, top-p .95, top-k 20, min-p 0, repetition penalty 1, default template reasoning behavior. Benchmark requests can override those defaults.</p>
+<p>The recorded 85K profile has very little VRAM headroom. A successful retrieval run is not proof it is robust under other applications or all agent workloads. No automatic stop/start or system-memory changes are hidden in these scripts.</p>
+<h3>API and Hermes</h3>
+<p>Use an OpenAI-compatible Chat Completions endpoint at <code>http://127.0.0.1:8081/v1</code>. The Huihui model alias is <code>Huihui-Qwen3.8-27B</code>; other launchers use <code>Qwen3.8-27B</code>. The historical local server did not require a key and bound only to localhost. Do not publish actual credentials in documentation. Match a client/Hermes context override to the serving profile, rather than the larger native context advertised by model metadata. Refresh the UI and choose the matching alias after switching models.</p>
+<p>Hermes supports automatic compaction, but it was researched rather than verified through a complete local agent workflow. See <a href="https://github.com/NousResearch/hermes-agent/blob/main/website/docs/developer-guide/context-compression-and-caching.md">official context documentation</a>.</p>
+<h3>Strata Flash baseline settings</h3>
+<p>Recorded terminal 0.2.7 / engine 0.1.52; Flash Next IQ2_XS; 32K; vision off; MTP on; KV int8; <code>--expert-cache auto --prefill auto --spec 4 --spec-min-p 0.5 --vram-reserve-mib 1500</code>. Default route-tail-skip 7 remained enabled, so this was not a claim of bit-identical full-model arithmetic.</p>
+<p>Strata setup had prepared native model/pack/MTP directories. Their machine-specific paths and configuration files are not published. An install was staged using <code>strata install -- ... --no-start</code>; launch then used a saved Flash preset. Use the matching version&#x27;s help for data-directory and preset handling. The IQ2_XS shards together occupy about 68 GB decimal on disk, distinct from runtime resident memory.</p>
+<p>At 64K, a Windows commit warning prevented further testing. Available physical RAM alone does not establish commit headroom; no page-file modification was performed. <code>--kv-grow</code> is a separate Strata memory mode; it was not applied in these local Flash measurements.</p></section><section id="research"><div class="section-label">Research</div><h2>External research — not local measurements</h2>
+<p>These sources were reviewed in the session. Reported results are attributed to their publishers and are not promises for the test machine. Source pages can change after the November 2026 review.</p>
+<h3>GPUs</h3>
+<div class="table-wrap"><table><thead><tr><th>Hardware appearing in research</th><th>Context</th><th>Status here</th></tr></thead><tbody>
+<tr><td>RTX 5070 Ti 16GB + 64GB RAM</td><td>Strata Flash IQ3_S screenshot, engine 0.1.56, 200K configured</td><td>External only: 94.7 tok/s mean vs 84.7 default; later rerun 87.8; actual-work claim ~85</td></tr>
+<tr><td>RTX 3090 24GB</td><td>HyperQwen patched vLLM</td><td>External only: ~133 chat / ~382 reproducing a 25K document in the original post</td></tr>
+<tr><td>RTX PRO 6000 Blackwell 96GB</td><td>HauhauCS FastMTP</td><td>External only; large-VRAM reference hardware</td></tr>
+<tr><td>DGX Spark</td><td>TensorFold + DFlash2 screenshot</td><td>External only; reported ~400 on mostly-copy edits, ~96 fresh code, ~41 summary</td></tr>
+<tr><td>RTX 5080 16GB</td><td>Strata engine .54 vs .56 report</td><td>External regression report, not a local upgrade A/B</td></tr>
+</tbody></table></div>
+<p>The Strata screenshot&#x27;s 200K was configured capacity, while visible requests were around 16K and current cached context was 428 tokens. It does not demonstrate 95 tok/s at a filled 200K window. The screenshot also explicitly warned that the 87.8 rerun differed from the 94.7 group mean by more than estimated run noise. Screenshots and social profiles are not republished here.</p>
+<h3>Strata KV growth and upgrade</h3>
+<p><a href="https://github.com/Niko1221/Strata/blob/main/docs/DETAILS.md#memory-modes"><code>--kv-grow</code></a> allocates physical KV as needed, letting expert cache use the rest at short contexts. It needs a compatible single-GPU mode, expert profile, all experts in RAM, and full GPU KV rather than KV streaming. It is not a generic llama.cpp flag. Long-context growth can trade away expert cache and change performance; a larger configured window alone is not validation.</p>
+<p>The local baseline was engine 0.1.52. Version <a href="https://github.com/Niko1221/Strata/releases/tag/v0.2.10">0.2.10</a> and engine 0.1.56 were researched, but not installed or benchmarked. A <a href="https://github.com/Niko1221/Strata/issues/5115">5080 Windows slowdown report</a> motivated retaining a baseline; it does not prove every newer version is slower. A <a href="https://github.com/Niko1221/Strata/issues/2310">KV-grow / prefill interaction report</a> illustrates why a configured large context still needs testing.</p>
+<h3>HyperQwen: correction to a circulated summary</h3>
+<p>The original creator&#x27;s project is <a href="https://github.com/syv-ai/HyperQwen">syv-ai/HyperQwen</a>, formerly qwen38-27b-rtx3090. It patches <strong>vLLM</strong>, not llama.cpp. TeksEdge amplified the result; the <a href="https://www.reddit.com/r/LocalLLaMA/comments/1vtup5s/i_pushed_qwen3827b_to_381_tps_for_a_single/">original developer post</a> described ~133 tok/s chat, ~382 while reproducing context, 16-token verification with about 15 accepted in a favorable workload, and important long-context tradeoffs/corrections.</p>
+<p>Lookup and prefix caching are distinct: lookup proposes output tokens from context; prefix caching avoids reprocessing input. The recipe also changes quantization and kernels; it is not just a flag that makes an existing GGUF 4.6 times faster. The published 24GB preparation is not a demonstrated fit on this 16GB setup. No HyperQwen download, conversion, installation, or benchmark was performed locally.</p>
+<h3>Uncensored 27B candidates</h3>
+<div class="table-wrap"><table><thead><tr><th>Repository</th><th>Relevant files</th><th>What was established</th></tr></thead><tbody>
+<tr><td><a href="https://huggingface.co/huihui-ai/Huihui-Qwen3.8-27B-abliterated-GGUF">Huihui</a></td><td>GSQ-RCO-IQ3_S-mtp ~12.1 GB</td><td>Downloaded and tested locally; see its report</td></tr>
+<tr><td><a href="https://huggingface.co/HauhauCS/Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-MTP-GGUF">HauhauCS Aggressive</a></td><td>IQ3_M 12.79 GB; IQ3_XS 12.18 GB; FastMTP sidecar 903 MB</td><td>Researched only. Embedded MTP uses normal compatible llama.cpp; FastMTP requires its patch. Q3_K_P reference gains: +20.5% document / +8.8% reasoning vs embedded depth-2 profile on 96GB hardware</td></tr>
+<tr><td><a href="https://huggingface.co/Blackfrost-AI/Qwen3.8-27B-ABLITERATED-GGUF">Blackfrost</a></td><td>Q3_K_S 12.3 GB; Q3_K_M 13.5 GB</td><td>Researched only; embedded MTP; optional larger DFlash2 sidecar</td></tr>
+</tbody></table></div>
+<p>File sizes exclude runtime cache/buffers. Fewer refusals do not establish stronger cybersecurity or coding capability. The candidate list is not a comparable cybersecurity benchmark; reported refusal scores use different prompts and evaluation methods. HauhauCS itself recommends a Balanced variant, when available, over Aggressive for reliability-critical long-context agent work.</p>
+<h3>Other useful sources</h3>
+<ul>
+<li><a href="https://huggingface.co/unsloth/Qwen3.8-27B-GGUF">Unsloth Qwen3.8-27B GGUFs</a></li>
+<li><a href="https://llm-bench.io/hardware/rtx-5070-ti">5070 Ti community benchmark entries</a>: Q3_K_XL 68–75 tok/s around 85K configured context; matching IQ4_XS entry 46.8 tok/s. Different runs and settings, not a same-machine controlled comparison.</li>
+<li><a href="https://chimolog.co/strata-guide/">Chimolog Strata guide</a>: Flash IQ3_S and a DSH agent interface with 256K configured context. Its Opus-level quality comparisons are the author&#x27;s assessment, not independently reproduced here.</li>
+<li><a href="https://github.com/Niko1221/Strata/blob/main/bench/results/2026-10-06-community-rtx5070ti-5900x/README.md">Earlier 5070 Ti / 5900X Flash results</a>: external model/engine configuration, not a local result.</li>
+</ul></section><section id="privacy"><div class="section-label">Privacy</div><h2>Privacy and publication scope</h2>
+<p>Only an explicit allowlist of synthetic benchmark results, reports, portable profiles, and the focused benchmark harness is published.</p>
+<p>Excluded: user names, home/workspace paths, machine names, hardware serials/UUIDs, personal emails, API keys, auth files, application sessions, private chats, attachments/screenshots, full process lists, complete system logs, model weights, runtime binaries, and unrelated project files.</p>
+<p>Windows absolute paths in retained JSON/errors are replaced with placeholders. Some synthetic fixture basenames and public model/repository identifiers remain because they identify the experiment. Localhost endpoint examples are generic. Commit attribution uses a generic documentation identity rather than an account&#x27;s local Git name/email.</p>
+<p>Raw data contains synthetic prompts, generated code, and a basic security-review response. These are evidence rather than executable recommendations. File hashes refer to public model artifacts. Hardware is described only at the model/specification level needed to interpret performance.</p>
+<p>The original local files were not modified by sanitization. The repository&#x27;s documentation commit is the intended publication boundary; no unrelated workspace files or account configuration are staged.</p></section><section id="report-0"><div class="section-label">Qwen38-validation-report</div><h2>Qwen3.8-27B validation report</h2>
+<p>Date: 2026-11-04. Hardware: RTX 5070 Ti 16 GB, Ryzen 7 7800X3D, 64 GB RAM.</p>
+<p>Runtime: llama.cpp b12110 (cd959bae9), Windows CUDA 13.4. Model: Unsloth Qwen3.8-27B UD-IQ4_XS GGUF. Context allocation: 32,768 tokens. Flash Attention enabled, all GPU layers, 4-bit K/V cache, GPU sampling, one slot. No weight changes.</p>
+<h3>Coding checks</h3>
+<p>Three unique isolated correctness checks were run against each profile. These are synthetic examples resembling coding tasks, not measurements on the user&#x27;s repository. The model used greedy decoding, seed 42, and thinking disabled. Each task was measured once per profile; results are indicative, not a statistical study.</p>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Ordinary tok/s</th><th>MTP tok/s</th><th>Editing tok/s</th><th>Functional checks</th></tr></thead><tbody>
+<tr><td>TTL cache expiry bug</td><td>50.9</td><td>130.3</td><td>244.3</td><td>Passed all profiles</td></tr>
+<tr><td>CSV multi-function feature</td><td>50.8</td><td>125.1</td><td>102.6</td><td>Passed all profiles</td></tr>
+<tr><td>Lazy sorted-event merge</td><td>50.9</td><td>104.3</td><td>92.9</td><td>Passed all profiles</td></tr>
+</tbody></table></div>
+<p>Ordinary decoding disables speculation. MTP drafts up to three tokens. The editing profile combines MTP with an 8-token lookup key and up to 64 copied draft tokens.</p>
+<p>Functional checks: exact TTL expiry and zero TTL; CSV delimiter propagation, escaping, line endings and input preservation; stable event ordering, laziness, object identity and empty streams. Generated code was parsed, screened for unexpected imports/capabilities, and run in separate Python processes with a timeout.</p>
+<p>Implementations and response lengths differ between profiles. Passing these focused checks is not evidence of production readiness, comprehensive correctness, or byte-identical output. The fresh-code answer included redundant scaffolding/comments, so review remains necessary.</p>
+<h3>Long-context retrieval: editing profile</h3>
+<p>Each input contained archive records plus three reference values placed near its beginning, middle and end. A follow-up requested the same values in a different key order. Values matched on all six requests; this is a narrow retrieval check, not broad reasoning or coding validation at depth. Some 8K replies added Markdown fences despite the JSON-only instruction.</p>
+<div class="table-wrap"><table><thead><tr><th>Actual input tokens</th><th>Phase</th><th>Cached tokens</th><th>Prompt processing s</th><th>Generation tok/s</th><th>Total request s</th><th>Minimum free VRAM MiB</th></tr></thead><tbody>
+<tr><td>8,108</td><td>cold</td><td>0</td><td>4.86</td><td>114.1</td><td>5.29</td><td>549</td></tr>
+<tr><td>8,192</td><td>resumed</td><td>8,157</td><td>0.19</td><td>67.0</td><td>0.92</td><td>529</td></tr>
+<tr><td>16,299</td><td>cold</td><td>0</td><td>10.01</td><td>115.1</td><td>10.53</td><td>513</td></tr>
+<tr><td>16,378</td><td>resumed</td><td>16,343</td><td>0.20</td><td>60.6</td><td>0.94</td><td>509</td></tr>
+<tr><td>31,916</td><td>cold</td><td>0</td><td>22.97</td><td>103.2</td><td>23.58</td><td>497</td></tr>
+<tr><td>31,995</td><td>resumed</td><td>31,960</td><td>0.20</td><td>54.3</td><td>1.04</td><td>497</td></tr>
+</tbody></table></div>
+<p>Cold requests reported zero reused prompt tokens. Follow-ups reused nearly all previous tokens. VRAM was sampled approximately every 0.75 seconds; reported headroom is not a guarantee against shorter transient peaks or memory use by other applications. No crash or out-of-memory error occurred. Near-32K was tested at 31,916 prompt tokens, leaving room for the answer and follow-up; this is not a 32,768-token input test. Long-context checks were run on the editing profile only.</p>
+<h3>Profiles saved</h3>
+<ul>
+<li><code>Start-Qwen38-General.cmd</code>: MTP only; preferable for fresh code and general responses in these checks.</li>
+<li><code>Start-Qwen38.cmd</code>: MTP plus prompt lookup; faster on the patch that reused most source text. This profile is available as the editing alternative.</li>
+</ul>
+<p>The general MTP-only profile was restored after the Flash comparison, before subsequent Q3 and Huihui experiments. Both use localhost port 8081. Run one at a time, after stopping the existing server. Both preserve default interactive thinking behavior; benchmark requests explicitly disabled thinking. Benchmark speeds therefore do not predict thinking-mode latency.</p>
+<h3>Configuration differences</h3>
+<pre><code>Shared: --ctx-size 32768 --gpu-layers all --flash-attn on
+        --cache-type-k q4_0 --cache-type-v q4_0 --backend-sampling
+        --spec-draft-n-max 3
+        --spec-draft-type-k q8_0 --spec-draft-type-v q8_0
+General: --spec-type draft-mtp
+Editing: --spec-type draft-mtp,ngram-simple
+         --spec-ngram-simple-size-n 8 --spec-ngram-simple-size-m 64</code></pre>
+<p>The compressed KV cache is a memory/precision tradeoff. MTP and backend arithmetic may change exact output. DFlash2 is not active. No drivers, clocks, power limits, or user repositories were changed.</p>
+<p>Publication note: this is a historical experiment report. Model activity statements describe that run, not the current state of a reader&#x27;s machine. Raw result files are in ../../data/; portable launchers are in ../../profiles/.</p></section><section id="report-1"><div class="section-label">Qwen38-Q3-85K-report</div><h2>Qwen3.8-27B Q3_K_XL / 85K report</h2>
+<p>Date: 2026-11-04. Hardware: RTX 5070 Ti 16GB, Ryzen 7 7800X3D, 64GB RAM.</p>
+<h3>Active configuration</h3>
+<p>llama.cpp b12110 CUDA 13.4; Qwen3.8-27B-UD-Q3_K_XL GGUF (13,146,393,504 bytes). Download SHA256 verified against Hugging Face metadata. IQ4_XS and Flash files remain available; Flash is stopped.</p>
+<p>84,992-token allocation; all GPU layers; Flash Attention; Q4_0 main K/V cache; MTP drafts up to 3 tokens with Q8_0 draft K/V; GPU sampling; batch 512 / microbatch 128; one slot. Local server: htt&lt;LOCAL_PATH&gt;</p>
+<p>Launcher: Start-Qwen38-Q3-85K.cmd. The original IQ4_XS 32K launchers are preserved. Run only one server on port 8081.</p>
+<h3>Conversational speed on the final configuration</h3>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Decode tok/s</th><th>Output tokens</th><th>Total seconds</th></tr></thead><tbody>
+<tr><td>Thinking off</td><td>67.8</td><td>413</td><td>6.36</td></tr>
+<tr><td>Thinking on</td><td>65.1</td><td>512</td><td>8.11</td></tr>
+</tbody></table></div>
+<p>One CPU/GPU explanation request per mode, temperature 1 and seed 42. The thinking-enabled request reached its 512-token output limit, so its speed includes reasoning and is not a completed-answer quality score. Previous IQ4_XS interactive logs showed roughly 52-54 tok/s on different prompts; the new 65-68 tok/s is encouraging but is not a controlled same-prompt quantization comparison.</p>
+<h3>Focused coding checks</h3>
+<p>Greedy decoding, thinking off, seed 42, 1,600-token output cap. Initial pass on the original 85K MTP configuration:</p>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Decode tok/s</th><th>Result</th></tr></thead><tbody>
+<tr><td>bugfix</td><td>59.9</td><td>Pass</td></tr>
+<tr><td>multi_function_edit</td><td>54.2</td><td>Pass</td></tr>
+<tr><td>fresh_code</td><td>48.5</td><td>Fail</td></tr>
+</tbody></table></div>
+<p>The fresh generator called next() on a list instead of creating an iterator. Without MTP, the same two edit checks passed and the generator failed again; generation was about 48 tok/s. A smaller-batch trial produced 114-119 tok/s on edits, but its fresh answer hit the output cap and its long-context request timed out. That trial was reverted. These small examples do not establish broad agent quality, nor prove a general quality ranking between quantizations. No Hermes end-to-end run was performed.</p>
+<h3>Long-context validation</h3>
+<p>The original configuration (also restored as the final configuration) recovered all three markers near the start, middle and end at 83,916 input tokens, then repeated them correctly in a follow-up at 84,000 input tokens. Replies included Markdown fences despite the JSON-only instruction.</p>
+<div class="table-wrap"><table><thead><tr><th>Phase</th><th>Prompt tokens</th><th>Prompt seconds</th><th>Decode tok/s</th><th>Total seconds</th></tr></thead><tbody>
+<tr><td>cold</td><td>83916</td><td>236.02</td><td>39.0</td><td>237.38</td></tr>
+<tr><td>resumed</td><td>84000</td><td>0.35</td><td>46.9</td><td>1.44</td></tr>
+</tbody></table></div>
+<p>Minimum sampled free VRAM was only 115 MiB. This is a near-full-context retrieval check, not a maximum-size input test, repeated stability test, or complex agent workflow. Leave room for generated output within the 84,992-token allocation. Other GPU applications can reduce headroom.</p>
+<p>The smaller-batch trial initially processed faster, then slowed sharply above 60K and exceeded the 300-second HTTP timeout; the server released it at 65,024 processed tokens. GPU memory pressure was observed, but the exact paging cause was not conclusively isolated. The profile was restored to the settings that had completed retrieval; final chat requests succeeded.</p>
+<h3>Practical conclusion</h3>
+<p>Q3_K_XL provides 2.59 times the configured context of the previous 32K setup and measured about 65-68 tok/s on short conversation requests. The full initial read near 84K took about four minutes; the cached follow-up took 1.44 seconds. The larger window fits narrowly and needs workload-specific validation before relying on long autonomous sessions. The focused fresh-code failure remains a material limitation.</p>
+<p>Community comparison: http&lt;LOCAL_PATH&gt; Model source: http&lt;LOCAL_PATH&gt;</p>
+<p>Raw measurements, generated responses and validation errors: Qwen38-Q3-85K-results.json.</p>
+<p>Publication note: this is a historical experiment report. Model activity statements describe that run, not the current state of a reader&#x27;s machine. Raw result files are in ../../data/; portable launchers are in ../../profiles/.</p></section><section id="report-2"><div class="section-label">QwenFlash-benchmark-report</div><h2>Qwen Flash baseline — 2026-11-04</h2>
+<p>RTX 5070 Ti 16GB; Ryzen 7 7800X3D; 64GB DDR5-6000. Strata terminal 0.2.7 / engine 0.1.52; Qwen3.8-Flash-Next IQ2_XS. 32,768 context, int8 KV, MTP spec 4, 1,500 MiB VRAM reserve; vision/thinking off; temperature 0, seed 42. Default route-tail-skip 7 remains enabled.</p>
+<h3>Short-request results</h3>
+<p>Three sequential rounds on one running engine; medians below are engine decode speed, excluding prompt processing. Unique run prefixes avoid full prompt reuse; expert caches warm across rounds.</p>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Median tok/s</th><th>Range</th><th>Checks passed</th><th>Median total seconds</th></tr></thead><tbody>
+<tr><td>TTL cache bug fix</td><td>163.8</td><td>112.3–171.3</td><td>3/3</td><td>1.94</td></tr>
+<tr><td>CSV module edit</td><td>180.9</td><td>146.2–183.8</td><td>3/3</td><td>1.51</td></tr>
+<tr><td>Fresh lazy merge generator</td><td>160.3</td><td>156.5–167.9</td><td>1/3</td><td>1.43</td></tr>
+<tr><td>Arithmetic / factual JSON</td><td>121.5</td><td>101.6–122.3</td><td>3/3</td><td>0.77</td></tr>
+<tr><td>CPU/GPU explanation</td><td>120.6</td><td>90.7–125.8</td><td>Not scored</td><td>2.29</td></tr>
+</tbody></table></div>
+<p>Coding passed 7/9 focused checks. Two fresh-code answers called next() on a list instead of converting it to an iterator. Their speeds are included above and do not imply correct code. Tests are three small tasks, not a broad coding-agent evaluation. Generated code was checked and run locally; no Hermes tool-use workflow was evaluated.</p>
+<h3>Long-context retrieval</h3>
+<p>One request plus cached follow-up at each size; all six recovered the three markers at the beginning, middle and end. This tests retrieval, not complex long-context reasoning.</p>
+<div class="table-wrap"><table><thead><tr><th>Actual prompt tokens</th><th>Phase</th><th>Total seconds</th><th>Prompt seconds</th><th>Decode tok/s</th><th>Result</th></tr></thead><tbody>
+<tr><td>8108</td><td>cold</td><td>3.49</td><td>2.94</td><td>88.3</td><td>Pass</td></tr>
+<tr><td>8187</td><td>resumed</td><td>0.74</td><td>0.22</td><td>89.7</td><td>Pass</td></tr>
+<tr><td>16299</td><td>cold</td><td>5.62</td><td>5.27</td><td>131.8</td><td>Pass</td></tr>
+<tr><td>16378</td><td>resumed</td><td>0.59</td><td>0.19</td><td>116.3</td><td>Pass</td></tr>
+<tr><td>31916</td><td>cold</td><td>10.69</td><td>10.36</td><td>149.2</td><td>Pass</td></tr>
+<tr><td>31995</td><td>resumed</td><td>0.58</td><td>0.19</td><td>122.6</td><td>Pass</td></tr>
+</tbody></table></div>
+<p>Minimum sampled free VRAM: 1046 MiB. Health endpoint remained OK after testing.</p>
+<h3>Interpretation</h3>
+<p>This baseline reaches roughly 120 tok/s for everyday explanations and 164–181 tok/s for the two successful coding-edit tasks. Correctness remains the limiting factor for fresh code. Short outputs and MTP acceptance make speed workload-dependent; these results do not establish sustained 200+ tok/s performance.</p>
+<p>No upgrade was performed. Engine 0.1.56 has not been measured on this machine, so these results cannot decide whether upgrading improves performance. Flash was running at the end of that baseline; subsequent experiments switched models.</p>
+<p>The earlier default-reserve trial is excluded from these medians. Raw responses, timings and validation errors are in QwenFlash-benchmark-results.json.</p>
+<h3>Follow-up context verification</h3>
+<p>A 65,536-context launch was attempted after the baseline. It reached ready, but the engine logged only 1.3 GiB of available Windows commit against 2.0 GiB of planned host allocations (plus a desired safety reserve). No 64K retrieval request was submitted. Loading successfully does not establish safe operation at that context. The saved Flash preset was returned to 32,768 context. Larger context remains unvalidated; Windows commit headroom needs attention before retrying.</p>
+<p>Hermes supports automatic context compaction according to its official context-management documentation: http&lt;LOCAL_PATH&gt;</p>
+<p>Publication note: this is a historical experiment report. Model activity statements describe that run, not the current state of a reader&#x27;s machine. Raw result files are in ../../data/; portable launchers are in ../../profiles/.</p></section><section id="report-3"><div class="section-label">Huihui-Qwen38-report</div><h2>Huihui Qwen3.8-27B installation and checks</h2>
+<p>Date: 2026-11-05. RTX 5070 Ti 16GB, Ryzen 7 7800X3D, 64GB RAM.</p>
+<h3>Installed configuration</h3>
+<p>File: Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S-mtp.gguf (12,120,016,416 bytes). Size and SHA256 verified against repository metadata. SHA256: eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19</p>
+<p>llama.cpp b12110, CUDA 13.4; full GPU layers; Flash Attention; MTP up to 3 drafted tokens; 32,768 context; Q8_0 main and draft KV caches; GPU sampling; batch 512, microbatch 128.</p>
+<p>Model alias: Huihui-Qwen3.8-27B. Local UI: htt&lt;LOCAL_PATH&gt;</p>
+<p>The previous Q3_K_XL server was stopped. Its model and 85K launcher, the IQ4_XS models/launchers and Flash files remain intact. Only one server should use port 8081. No custom runtime patches or FastMTP sidecar are used.</p>
+<h3>Measured generation</h3>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Decode tok/s</th><th>Result</th></tr></thead><tbody>
+<tr><td>bugfix</td><td>113.3</td><td>Pass</td></tr>
+<tr><td>multi_function_edit</td><td>106.7</td><td>Pass</td></tr>
+<tr><td>fresh_code</td><td>91.2</td><td>Fail</td></tr>
+<tr><td>chat</td><td>67.4</td><td>Completed; thinking enabled</td></tr>
+<tr><td>security_review</td><td>97.4</td><td>Core findings correct; manual review</td></tr>
+</tbody></table></div>
+<p>One request per task, not repeated statistical benchmarks. Coding used temperature 0, seed 42, thinking disabled, and the same three focused executable checks as earlier profiles. Both edits passed. The fresh generator failed by calling next() on a list instead of creating an iterator. Chat used temperature 1, seed 42, thinking enabled, and completed in 6.96 seconds (418 total generated tokens including reasoning).</p>
+<p>The security check reviewed a synthetic SELECT query constructed with an f-string and an unescaped HTML response. It correctly identified CWE-89 SQL injection and CWE-79 XSS, recommending parameterized queries and context-appropriate HTML escaping. No generated commands were executed. The response added Markdown fences despite a JSON-only instruction and overstated possible SQL modification/deletion impact for this particular SELECT example. This is one basic vulnerability review, not proof of advanced cybersecurity ability, tool-use reliability or a measured refusal rate.</p>
+<h3>Near-32K context</h3>
+<div class="table-wrap"><table><thead><tr><th>Phase</th><th>Input tokens</th><th>Total seconds</th><th>Decode tok/s</th><th>Result</th></tr></thead><tbody>
+<tr><td>cold</td><td>31916</td><td>28.02</td><td>81.7</td><td>Pass</td></tr>
+<tr><td>resumed</td><td>32000</td><td>0.84</td><td>90.6</td><td>Pass</td></tr>
+</tbody></table></div>
+<p>Both requests recovered the markers near the beginning, middle and end. Minimum sampled free VRAM: 860 MiB. Replies included Markdown fences. This is a retrieval check, not an end-to-end long-running agent evaluation. Higher contexts were not tested for this model.</p>
+<h3>Takeaway</h3>
+<p>At the end of this experiment, the selected uncensored model was operational, with roughly 67 tok/s on the short thinking-mode chat request, 97 tok/s on the basic security review, and 107-113 tok/s on the two successful coding edits. Fresh-code correctness remains a limitation. Start at this verified 32K profile; the prior 85K result belongs to a different model and cache configuration.</p>
+<p>Source: http&lt;LOCAL_PATH&gt;</p>
+<p>Publication note: this is a historical experiment report. Model activity statements describe that run, not the current state of a reader&#x27;s machine. Raw result files are in ../../data/; portable launchers are in ../../profiles/.</p></section></main></div><footer>Historical measurements from November 4–5, 2026. Synthetic workloads; no universal speed or quality guarantees.</footer></body></html>

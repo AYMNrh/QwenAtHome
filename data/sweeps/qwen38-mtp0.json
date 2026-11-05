@@ -1,0 +1,48 @@
+[
+  {
+    "prompt": "Write a Python function that merges overlapping intervals. Include type hints, a docstring, and explain the algorithm with an example.",
+    "usage": {
+      "completion_tokens": 256,
+      "prompt_tokens": 37,
+      "total_tokens": 293,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "text": "```python\nfrom typing import List, Tuple\n\n\ndef merge_intervals(intervals: List[Tuple[int, int]]) -> List[Tuple[int, int]]:\n    \"\"\"\n    Merge all overlapping intervals in the input list.\n\n    Two intervals [a, b] and [c, d] overlap if a <= d and c <= b.\n    The merged result will contain non-overlapping intervals sorted by start time.\n\n    Args:\n        intervals: A list of tuples, where each tuple represents an interval [start, end].\n\n    Returns:\n        A list of merged, non-overlapping intervals sorted by start time.\n\n    Example:\n        >>> merge_intervals([(1, 3), (2, 6), (8, 10), (15, 18)])\n        [(1, 6), (8, 10), (15, 18)]\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Sort intervals by start time\n    sorted_intervals = sorted(intervals, key=lambda x: x[0])\n\n    # Initialize the result with the first interval\n    merged: List[Tuple[int, int]] = [sorted_intervals[0]]",
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 37,
+      "prompt_ms": 146.308,
+      "prompt_per_token_ms": 3.95427027027027,
+      "prompt_per_second": 252.89116111217433,
+      "predicted_n": 256,
+      "predicted_ms": 5009.977,
+      "predicted_per_token_ms": 19.64696862745098,
+      "predicted_per_second": 50.8984372582948
+    }
+  },
+  {
+    "prompt": "Explain how GPU memory bandwidth affects language model inference. Use several clear paragraphs.",
+    "usage": {
+      "completion_tokens": 256,
+      "prompt_tokens": 28,
+      "total_tokens": 284,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      }
+    },
+    "text": "Language model inference, particularly for large transformer-based models, is fundamentally different from training in its computational profile. While training involves heavy matrix multiplications that are compute-bound, inference—especially during the autoregressive generation of text—is primarily **memory-bandwidth bound**. This means the speed at which the model can generate the next token is limited not by how fast the GPU’s arithmetic units (ALUs) can perform calculations, but by how quickly data can be moved from high-speed memory (HBM) to the processing cores. In each step of generation, the model must load the entire set of weights for the current layer, along with the current hidden state and attention keys/values, into the compute units. Since these weights are reused for every single token generated, the bottleneck becomes the rate at which this massive amount of data can be streamed from memory.\n\nThe impact of memory bandwidth is most pronounced during the **decoding phase**, where tokens are generated one at a time. In this phase, the arithmetic intensity (the ratio of floating-point operations to bytes accessed) is very low. For example, if a model has 7 billion parameters, generating a single token requires reading approximately 14 GB of weight data (assuming 16-bit precision) to perform a relatively small number",
+    "timings": {
+      "cache_n": 0,
+      "prompt_n": 28,
+      "prompt_ms": 91.285,
+      "prompt_per_token_ms": 3.2601785714285714,
+      "prompt_per_second": 306.7316645670154,
+      "predicted_n": 256,
+      "predicted_ms": 5008.839,
+      "predicted_per_token_ms": 19.642505882352943,
+      "predicted_per_second": 50.91000129970239
+    }
+  }
+]

@@ -1,0 +1,641 @@
+{
+  "configuration": {
+    "model": "Qwen3.8-Flash-Next IQ2_XS",
+    "engine": "0.1.52",
+    "terminal": "0.2.7",
+    "gpu": "RTX 5070 Ti 16GB",
+    "cpu": "Ryzen 7 7800X3D",
+    "ram": "64GB DDR5-6000",
+    "context": 32768,
+    "kv": "int8",
+    "spec": 4,
+    "vram_reserve_mib": 1500,
+    "thinking": false,
+    "temperature": 0,
+    "seed": 42
+  },
+  "coding": [
+    {
+      "profile": "safe-r1",
+      "task": "bugfix",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 2.92618659999971,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 276,
+        "prompt_ms": 1038.3,
+        "prompt_per_token_ms": 3.762,
+        "prompt_per_second": 265.8,
+        "predicted_n": 209,
+        "predicted_ms": 1861.2,
+        "predicted_per_token_ms": 8.905,
+        "predicted_per_second": 112.3,
+        "draft_n": 172,
+        "draft_n_accepted": 157
+      },
+      "usage": {
+        "prompt_tokens": 276,
+        "completion_tokens": 209,
+        "total_tokens": 485,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+    },
+    {
+      "profile": "safe-r1",
+      "task": "multi_function_edit",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.6930216000000655,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 248,
+        "prompt_ms": 605.9,
+        "prompt_per_token_ms": 2.443,
+        "prompt_per_second": 409.3,
+        "predicted_n": 156,
+        "predicted_ms": 1067.3,
+        "predicted_per_token_ms": 6.842,
+        "predicted_per_second": 146.2,
+        "draft_n": 133,
+        "draft_n_accepted": 119
+      },
+      "usage": {
+        "prompt_tokens": 248,
+        "completion_tokens": 156,
+        "total_tokens": 404,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "def escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")"
+    },
+    {
+      "profile": "safe-r1",
+      "task": "fresh_code",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"<BENCHMARK_OUTPUT>/flash52-safe-r1-fresh_code.py\", line 28, in <module>\n    g=merge_sorted_events([stream(),[c,d],[]]); assert count[0]==0; assert next(g) is a; assert count[0]==1; assert list(g)==[c,b,d]; assert list(merge_sorted_events([]))==[]\n                                                                           ^^^^^^^\n  File \"<BENCHMARK_OUTPUT>/flash52-safe-r1-fresh_code.py\", line 8, in merge_sorted_events\n    event = next(stream)\n            ^^^^^^^^^^^^\nTypeError: 'list' object is not an iterator\n",
+      "finish": "stop",
+      "wall_seconds": 1.4086841000007553,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 121,
+        "prompt_ms": 445.9,
+        "prompt_per_token_ms": 3.685,
+        "prompt_per_second": 271.4,
+        "predicted_n": 148,
+        "predicted_ms": 945.4,
+        "predicted_per_token_ms": 6.388,
+        "predicted_per_second": 156.5,
+        "draft_n": 125,
+        "draft_n_accepted": 100
+      },
+      "usage": {
+        "prompt_tokens": 121,
+        "completion_tokens": 148,
+        "total_tokens": 269,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    heap = []\n    for i, stream in enumerate(streams):\n        try:\n            event = next(stream)\n            heapq.heappush(heap, (event[\"timestamp\"], i, 0, event))\n        except StopIteration:\n            pass\n\n    while heap:\n        timestamp, stream_index, order, event = heapq.heappop(heap)\n        yield event\n        try:\n            next_event = next(streams[stream_index])\n            heapq.heappush(heap, (next_event[\"timestamp\"], stream_index, order + 1, next_event))\n        except StopIteration:\n            pass\n```"
+    },
+    {
+      "profile": "safe-r2",
+      "task": "bugfix",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.93642059999911,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 276,
+        "prompt_ms": 634.3,
+        "prompt_per_token_ms": 2.298,
+        "prompt_per_second": 435.1,
+        "predicted_n": 209,
+        "predicted_ms": 1275.8,
+        "predicted_per_token_ms": 6.104,
+        "predicted_per_second": 163.8,
+        "draft_n": 164,
+        "draft_n_accepted": 156
+      },
+      "usage": {
+        "prompt_tokens": 276,
+        "completion_tokens": 209,
+        "total_tokens": 485,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+    },
+    {
+      "profile": "safe-r2",
+      "task": "multi_function_edit",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.509339500000351,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 248,
+        "prompt_ms": 599.0,
+        "prompt_per_token_ms": 2.415,
+        "prompt_per_second": 414.0,
+        "predicted_n": 161,
+        "predicted_ms": 890.2,
+        "predicted_per_token_ms": 5.529,
+        "predicted_per_second": 180.9,
+        "draft_n": 129,
+        "draft_n_accepted": 116
+      },
+      "usage": {
+        "prompt_tokens": 248,
+        "completion_tokens": 161,
+        "total_tokens": 409,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\ndef escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")\n```"
+    },
+    {
+      "profile": "safe-r2",
+      "task": "fresh_code",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.4277326999999786,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 121,
+        "prompt_ms": 470.5,
+        "prompt_per_token_ms": 3.888,
+        "prompt_per_second": 257.2,
+        "predicted_n": 157,
+        "predicted_ms": 935.3,
+        "predicted_per_token_ms": 5.957,
+        "predicted_per_second": 167.9,
+        "draft_n": 130,
+        "draft_n_accepted": 107
+      },
+      "usage": {
+        "prompt_tokens": 121,
+        "completion_tokens": 157,
+        "total_tokens": 278,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    heap = []\n    for i, stream in enumerate(streams):\n        it = iter(stream)\n        try:\n            event = next(it)\n            heapq.heappush(heap, (event[\"timestamp\"], i, 0, event, it))\n        except StopIteration:\n            pass\n\n    while heap:\n        ts, stream_idx, order, event, it = heapq.heappop(heap)\n        yield event\n        try:\n            next_event = next(it)\n            heapq.heappush(heap, (next_event[\"timestamp\"], stream_idx, order + 1, next_event, it))\n        except StopIteration:\n            pass\n```"
+    },
+    {
+      "profile": "safe-r3",
+      "task": "bugfix",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.9065341000004992,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 276,
+        "prompt_ms": 645.2,
+        "prompt_per_token_ms": 2.338,
+        "prompt_per_second": 427.8,
+        "predicted_n": 209,
+        "predicted_ms": 1220.1,
+        "predicted_per_token_ms": 5.838,
+        "predicted_per_second": 171.3,
+        "draft_n": 164,
+        "draft_n_accepted": 155
+      },
+      "usage": {
+        "prompt_tokens": 276,
+        "completion_tokens": 209,
+        "total_tokens": 485,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+    },
+    {
+      "profile": "safe-r3",
+      "task": "multi_function_edit",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.4746496000007028,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 248,
+        "prompt_ms": 606.9,
+        "prompt_per_token_ms": 2.447,
+        "prompt_per_second": 408.6,
+        "predicted_n": 156,
+        "predicted_ms": 848.9,
+        "predicted_per_token_ms": 5.442,
+        "predicted_per_second": 183.8,
+        "draft_n": 123,
+        "draft_n_accepted": 116
+      },
+      "usage": {
+        "prompt_tokens": 248,
+        "completion_tokens": 156,
+        "total_tokens": 404,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "def escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")"
+    },
+    {
+      "profile": "safe-r3",
+      "task": "fresh_code",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"<BENCHMARK_OUTPUT>/flash52-safe-r3-fresh_code.py\", line 28, in <module>\n    g=merge_sorted_events([stream(),[c,d],[]]); assert count[0]==0; assert next(g) is a; assert count[0]==1; assert list(g)==[c,b,d]; assert list(merge_sorted_events([]))==[]\n                                                                           ^^^^^^^\n  File \"<BENCHMARK_OUTPUT>/flash52-safe-r3-fresh_code.py\", line 8, in merge_sorted_events\n    event = next(stream)\n            ^^^^^^^^^^^^\nTypeError: 'list' object is not an iterator\n",
+      "finish": "stop",
+      "wall_seconds": 1.4328827999997884,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 121,
+        "prompt_ms": 484.4,
+        "prompt_per_token_ms": 4.003,
+        "prompt_per_second": 249.8,
+        "predicted_n": 148,
+        "predicted_ms": 923.4,
+        "predicted_per_token_ms": 6.239,
+        "predicted_per_second": 160.3,
+        "draft_n": 130,
+        "draft_n_accepted": 101
+      },
+      "usage": {
+        "prompt_tokens": 121,
+        "completion_tokens": 148,
+        "total_tokens": 269,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    heap = []\n    for i, stream in enumerate(streams):\n        try:\n            event = next(stream)\n            heapq.heappush(heap, (event[\"timestamp\"], i, 0, event))\n        except StopIteration:\n            pass\n\n    while heap:\n        timestamp, stream_index, order, event = heapq.heappop(heap)\n        yield event\n        try:\n            next_event = next(streams[stream_index])\n            heapq.heappush(heap, (next_event[\"timestamp\"], stream_index, order + 1, next_event))\n        except StopIteration:\n            pass\n```"
+    }
+  ],
+  "daily": [
+    {
+      "task": "factual",
+      "run": 1,
+      "correct": true,
+      "answer": "{\"sum\": 42, \"product\": 247, \"larger\": \"9.9\", \"capital\": \"Paris\"}",
+      "wall_seconds": 0.7113438000014867,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 76,
+        "prompt_ms": 429.8,
+        "prompt_per_token_ms": 5.655,
+        "prompt_per_second": 176.8,
+        "predicted_n": 31,
+        "predicted_ms": 255.1,
+        "predicted_per_token_ms": 8.229,
+        "predicted_per_second": 121.5,
+        "draft_n": 25,
+        "draft_n_accepted": 23
+      },
+      "usage": {
+        "prompt_tokens": 76,
+        "completion_tokens": 31,
+        "total_tokens": 107,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "task": "explanation",
+      "run": 1,
+      "correct": null,
+      "answer": "When running a local language model, the CPU and GPU collaborate by dividing tasks based on their distinct architectural strengths. The CPU acts as the orchestrator, managing memory allocation, loading model weights from storage into RAM, and handling complex control logic such as tokenization, prompt parsing, and system-level operations. It also manages data transfer between system memory and the GPU’s dedicated VRAM, ensuring that the necessary inputs are available for computation.\n\nThe GPU serves as the high-throughput computational engine, optimized for parallel processing of matrix multiplications and tensor operations. Once the CPU prepares the input tensors and loads them into VRAM, the GPU executes the bulk of the neural network inference—performing thousands of simultaneous calculations across layers to generate token predictions. This specialization allows the GPU to handle the mathematically intensive workloads far more efficiently than a general-purpose CPU could.\n\nAfter the GPU completes its forward pass computations, it returns intermediate results or final logits back to the CPU for post-processing, such as sampling strategies (e.g., top-p or temperature-based selection), formatting output, and managing conversation history. This pipeline ensures that the CPU handles sequential, logic-heavy tasks while the GPU focuses on parallel, math-heavy workloads, maximizing overall throughput and latency performance during inference.",
+      "wall_seconds": 3.1212491000005684,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 43,
+        "prompt_ms": 318.9,
+        "prompt_per_token_ms": 7.416,
+        "prompt_per_second": 134.8,
+        "predicted_n": 254,
+        "predicted_ms": 2799.0,
+        "predicted_per_token_ms": 11.02,
+        "predicted_per_second": 90.7,
+        "draft_n": 249,
+        "draft_n_accepted": 117
+      },
+      "usage": {
+        "prompt_tokens": 43,
+        "completion_tokens": 254,
+        "total_tokens": 297,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "task": "factual",
+      "run": 2,
+      "correct": true,
+      "answer": "{\n  \"sum\": 42,\n  \"product\": 247,\n  \"larger\": \"9.9\",\n  \"capital\": \"Paris\"\n}",
+      "wall_seconds": 0.7696489000009024,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 76,
+        "prompt_ms": 423.0,
+        "prompt_per_token_ms": 5.566,
+        "prompt_per_second": 179.7,
+        "predicted_n": 42,
+        "predicted_ms": 343.4,
+        "predicted_per_token_ms": 8.176,
+        "predicted_per_second": 122.3,
+        "draft_n": 33,
+        "draft_n_accepted": 30
+      },
+      "usage": {
+        "prompt_tokens": 76,
+        "completion_tokens": 42,
+        "total_tokens": 118,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "task": "explanation",
+      "run": 2,
+      "correct": null,
+      "answer": "When running a local language model, the CPU and GPU collaborate by dividing tasks based on their distinct architectural strengths. The CPU acts as the orchestrator, managing memory allocation, loading model weights from storage into RAM, and handling complex control logic such as tokenization, prompt parsing, and system-level operations. It ensures that data is correctly formatted and ready for computation before passing it to the GPU.\n\nThe GPU serves as the high-throughput computational engine, specializing in parallel matrix multiplication and tensor operations. Once the CPU prepares the input tensors, the GPU processes them using thousands of cores simultaneously, significantly accelerating the inference process. This parallelism allows the model to handle large batches of data or complex neural network layers much faster than a CPU could alone, making real-time generation feasible for larger models.\n\nFinally, the two components interact through continuous data exchange over high-speed interfaces like PCIe. The GPU sends intermediate results back to the CPU for post-processing, such as decoding tokens into text or managing user interface interactions. This symbiotic relationship ensures that the CPU handles sequential logic efficiently while the GPU maximizes computational throughput, resulting in a balanced and efficient execution pipeline for local language models.",
+      "wall_seconds": 2.1944120999996812,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 43,
+        "prompt_ms": 250.3,
+        "prompt_per_token_ms": 5.821,
+        "prompt_per_second": 171.8,
+        "predicted_n": 234,
+        "predicted_ms": 1941.1,
+        "predicted_per_token_ms": 8.295,
+        "predicted_per_second": 120.6,
+        "draft_n": 215,
+        "draft_n_accepted": 110
+      },
+      "usage": {
+        "prompt_tokens": 43,
+        "completion_tokens": 234,
+        "total_tokens": 277,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "task": "factual",
+      "run": 3,
+      "correct": true,
+      "answer": "{\n  \"sum\": 42,\n  \"product\": 247,\n  \"larger\": \"9.9\",\n  \"capital\": \"Paris\"\n}",
+      "wall_seconds": 0.8585664000001998,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 76,
+        "prompt_ms": 442.3,
+        "prompt_per_token_ms": 5.82,
+        "prompt_per_second": 171.8,
+        "predicted_n": 42,
+        "predicted_ms": 413.3,
+        "predicted_per_token_ms": 9.84,
+        "predicted_per_second": 101.6,
+        "draft_n": 33,
+        "draft_n_accepted": 31
+      },
+      "usage": {
+        "prompt_tokens": 76,
+        "completion_tokens": 42,
+        "total_tokens": 118,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    },
+    {
+      "task": "explanation",
+      "run": 3,
+      "correct": null,
+      "answer": "When running a local language model, the CPU and GPU collaborate by dividing tasks based on their distinct architectural strengths. The **CPU** acts as the orchestrator, managing memory allocation, loading model weights from storage into RAM, and handling complex control logic such as tokenization, prompt parsing, and system-level operations. It also manages data transfer between system memory and the GPU, ensuring that inputs are properly formatted before computation begins.\n\nThe **GPU** handles the heavy computational workload, specifically matrix multiplications and tensor operations required for neural network inference. Because GPUs have thousands of cores optimized for parallel processing, they can perform these calculations much faster than a CPU, especially when dealing with large batches or long sequences. However, this speed comes at the cost of memory capacity; if the model exceeds the GPU’s VRAM, some layers may be offloaded to system RAM, where the CPU processes them more slowly but still contributes to overall throughput.\n\nTogether, they form a pipeline: the CPU prepares and feeds data to the GPU, which performs rapid mathematical computations, then returns results back to the CPU for final output generation or further processing. This synergy allows local LLMs to run efficiently on consumer hardware, balancing memory constraints with computational speed through careful task distribution between the two processors.",
+      "wall_seconds": 2.292387999999846,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 43,
+        "prompt_ms": 261.4,
+        "prompt_per_token_ms": 6.079,
+        "prompt_per_second": 164.5,
+        "predicted_n": 255,
+        "predicted_ms": 2027.7,
+        "predicted_per_token_ms": 7.952,
+        "predicted_per_second": 125.8,
+        "draft_n": 226,
+        "draft_n_accepted": 129
+      },
+      "usage": {
+        "prompt_tokens": 43,
+        "completion_tokens": 255,
+        "total_tokens": 298,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      }
+    }
+  ],
+  "context": [
+    {
+      "target": 8192,
+      "phase": "cold",
+      "passed": true,
+      "answer": "{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}",
+      "wall_seconds": 3.4879070000006323,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 8108,
+        "prompt_ms": 2942.4,
+        "prompt_per_token_ms": 0.363,
+        "prompt_per_second": 2755.6,
+        "predicted_n": 45,
+        "predicted_ms": 509.7,
+        "predicted_per_token_ms": 11.327,
+        "predicted_per_second": 88.3,
+        "draft_n": 35,
+        "draft_n_accepted": 32
+      },
+      "usage": {
+        "prompt_tokens": 8108,
+        "completion_tokens": 45,
+        "total_tokens": 8153,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 14939,
+      "minimum_free_vram_mib": 1057
+    },
+    {
+      "target": 8192,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}",
+      "wall_seconds": 0.740999900001043,
+      "timings": {
+        "cache_n": 8153,
+        "prompt_n": 34,
+        "prompt_ms": 221.1,
+        "prompt_per_token_ms": 6.503,
+        "prompt_per_second": 153.8,
+        "predicted_n": 45,
+        "predicted_ms": 501.5,
+        "predicted_per_token_ms": 11.144,
+        "predicted_per_second": 89.7,
+        "draft_n": 41,
+        "draft_n_accepted": 32
+      },
+      "usage": {
+        "prompt_tokens": 8187,
+        "completion_tokens": 45,
+        "total_tokens": 8232,
+        "prompt_tokens_details": {
+          "cached_tokens": 8153
+        }
+      },
+      "peak_vram_mib": 14931,
+      "minimum_free_vram_mib": 1065
+    },
+    {
+      "target": 16384,
+      "phase": "cold",
+      "passed": true,
+      "answer": "{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}",
+      "wall_seconds": 5.623997800001234,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 16299,
+        "prompt_ms": 5266.8,
+        "prompt_per_token_ms": 0.323,
+        "prompt_per_second": 3094.7,
+        "predicted_n": 45,
+        "predicted_ms": 341.4,
+        "predicted_per_token_ms": 7.587,
+        "predicted_per_second": 131.8,
+        "draft_n": 33,
+        "draft_n_accepted": 33
+      },
+      "usage": {
+        "prompt_tokens": 16299,
+        "completion_tokens": 45,
+        "total_tokens": 16344,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 14939,
+      "minimum_free_vram_mib": 1057
+    },
+    {
+      "target": 16384,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}",
+      "wall_seconds": 0.588735600000291,
+      "timings": {
+        "cache_n": 16343,
+        "prompt_n": 35,
+        "prompt_ms": 194.1,
+        "prompt_per_token_ms": 5.546,
+        "prompt_per_second": 180.3,
+        "predicted_n": 45,
+        "predicted_ms": 386.9,
+        "predicted_per_token_ms": 8.598,
+        "predicted_per_second": 116.3,
+        "draft_n": 40,
+        "draft_n_accepted": 34
+      },
+      "usage": {
+        "prompt_tokens": 16378,
+        "completion_tokens": 45,
+        "total_tokens": 16423,
+        "prompt_tokens_details": {
+          "cached_tokens": 16343
+        }
+      },
+      "peak_vram_mib": 14931,
+      "minimum_free_vram_mib": 1065
+    },
+    {
+      "target": 32000,
+      "phase": "cold",
+      "passed": true,
+      "answer": "{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}",
+      "wall_seconds": 10.688399200000276,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 31916,
+        "prompt_ms": 10362.4,
+        "prompt_per_token_ms": 0.325,
+        "prompt_per_second": 3080.0,
+        "predicted_n": 45,
+        "predicted_ms": 301.6,
+        "predicted_per_token_ms": 6.702,
+        "predicted_per_second": 149.2,
+        "draft_n": 33,
+        "draft_n_accepted": 33
+      },
+      "usage": {
+        "prompt_tokens": 31916,
+        "completion_tokens": 45,
+        "total_tokens": 31961,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 14940,
+      "minimum_free_vram_mib": 1056
+    },
+    {
+      "target": 32000,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}",
+      "wall_seconds": 0.5759633000016038,
+      "timings": {
+        "cache_n": 31960,
+        "prompt_n": 35,
+        "prompt_ms": 194.8,
+        "prompt_per_token_ms": 5.566,
+        "prompt_per_second": 179.7,
+        "predicted_n": 45,
+        "predicted_ms": 367.0,
+        "predicted_per_token_ms": 8.156,
+        "predicted_per_second": 122.6,
+        "draft_n": 34,
+        "draft_n_accepted": 34
+      },
+      "usage": {
+        "prompt_tokens": 31995,
+        "completion_tokens": 45,
+        "total_tokens": 32040,
+        "prompt_tokens_details": {
+          "cached_tokens": 31960
+        }
+      },
+      "peak_vram_mib": 14950,
+      "minimum_free_vram_mib": 1046
+    }
+  ]
+}

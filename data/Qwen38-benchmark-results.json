@@ -1,0 +1,456 @@
+{
+  "profiles": {
+    "ordinary": [
+      {
+        "profile": "ordinary",
+        "task": "bugfix",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 4.413850699999784,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 268,
+          "prompt_ms": 285.789,
+          "prompt_per_token_ms": 1.0663768656716417,
+          "prompt_per_second": 937.7547771257816,
+          "predicted_n": 209,
+          "predicted_ms": 4084.906,
+          "predicted_per_token_ms": 19.638971153846153,
+          "predicted_per_second": 50.91916435776001
+        },
+        "usage": {
+          "completion_tokens": 209,
+          "prompt_tokens": 268,
+          "total_tokens": 477,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+      },
+      {
+        "profile": "ordinary",
+        "task": "multi_function_edit",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 3.430990500000007,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 240,
+          "prompt_ms": 202.569,
+          "prompt_per_token_ms": 0.8440375,
+          "prompt_per_second": 1184.7814818654383,
+          "predicted_n": 161,
+          "predicted_ms": 3152.609,
+          "predicted_per_token_ms": 19.70380625,
+          "predicted_per_second": 50.75161556666241
+        },
+        "usage": {
+          "completion_tokens": 161,
+          "prompt_tokens": 240,
+          "total_tokens": 401,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\ndef escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")\n```"
+      },
+      {
+        "profile": "ordinary",
+        "task": "fresh_code",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 21.396322900000087,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 113,
+          "prompt_ms": 120.911,
+          "prompt_per_token_ms": 1.0700088495575222,
+          "prompt_per_second": 934.571709769996,
+          "predicted_n": 1081,
+          "predicted_ms": 21222.723,
+          "predicted_per_token_ms": 19.650669444444446,
+          "predicted_per_second": 50.88885153898488
+        },
+        "usage": {
+          "completion_tokens": 1081,
+          "prompt_tokens": 113,
+          "total_tokens": 1194,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    \"\"\"\n    Lazy generator that merges any number of already-sorted iterables of dicts\n    with numeric timestamp keys.\n    \n    - Ascending timestamps\n    - Ties: lower stream index first, then original order within that stream\n    - Preserves original dict objects\n    - Does not mutate inputs\n    - Empty streams work\n    - Does not materialize streams: reads at most one pending event per stream\n    \"\"\"\n    # Each heap entry: (timestamp, stream_index, original_index, event_dict)\n    heap = []\n    iterators = []\n    \n    for stream_idx, stream in enumerate(streams):\n        it = iter(stream)\n        iterators.append(it)\n        try:\n            first = next(it)\n            # Use a counter for original order within the stream\n            # We need to track the position within each stream\n            # Since we only keep one pending event per stream, we can use a per-stream counter\n            # But we need to know the original order. Since we process one at a time,\n            # the order within a stream is naturally preserved by the iterator.\n            # For tie-breaking within the same stream, we need a sequence number.\n            # We'll use a per-stream counter that increments each time we pull from that stream.\n            heapq.heappush(heap, (first.get('timestamp', 0), stream_idx, 0, first, it))\n        except StopIteration:\n            pass\n    \n    # We need to track per-stream sequence numbers for tie-breaking within the same stream\n    # Let's restructure: use a wrapper that tracks the sequence number per stream\n    \n    # Actually, let me redo this more carefully.\n    # Each stream has its own iterator and a sequence counter.\n    # When we pop an event from stream i, we push the next event from stream i with sequence counter incremented.\n    \n    # Let's restart with a cleaner approach.\n    pass\n\n\ndef merge_sorted_events(streams):\n    \"\"\"\n    Lazy generator that merges any number of already-sorted iterables of dicts\n    with numeric timestamp keys.\n    \n    - Ascending timestamps\n    - Ties: lower stream index first, then original order within that stream\n    - Preserves original dict objects\n    - Does not mutate inputs\n    - Empty streams work\n    - Does not materialize streams: reads at most one pending event per stream\n    \"\"\"\n    heap = []\n    iterators = []\n    seq_counters = []\n    \n    for stream_idx, stream in enumerate(streams):\n        it = iter(stream)\n        iterators.append(it)\n        seq_counters.append(0)\n        try:\n            first = next(it)\n            ts = first.get('timestamp', 0)\n            # Heap entry: (timestamp, stream_index, sequence_number, event_dict)\n            # We need to be careful: if two events have the same timestamp and same stream index,\n            # the sequence number breaks the tie. But since we only have one pending event per stream,\n            # the sequence number for a given stream is always increasing.\n            # However, heapq compares tuples element by element. If timestamp, stream_index, and seq are all equal,\n            # it will try to compare the dict, which may not be comparable.\n            # To avoid this, we can add a unique tiebreaker. But since seq is unique per stream and stream_index is unique,\n            # (timestamp, stream_index, seq) should be unique enough.\n            # Actually, stream_index is unique per stream, so (timestamp, stream_index) is already unique per stream.\n            # But two different streams could have the same timestamp. In that case, stream_index breaks the tie.\n            # Within the same stream, we only have one pending event at a time, so seq is not needed for tie-breaking\n            # between different streams. But if we had multiple events from the same stream in the heap, we'd need seq.\n            # Since we only push one event per stream at a time, and we pop before pushing the next from the same stream,\n            # there's at most one event per stream in the heap at any time. So (timestamp, stream_index) is sufficient.\n            # But to be safe and handle the \"original order within that stream\" requirement, let's include seq.\n            heapq.heappush(heap, (ts, stream_idx, seq_counters[stream_idx], first))\n        except StopIteration:\n            pass\n    \n    while heap:\n        ts, stream_idx, seq, event = heapq.heappop(heap)\n        yield event\n        # Try to get the next event from the same stream\n        try:\n            next_event = next(iterators[stream_idx])\n            seq_counters[stream_idx] += 1\n            next_ts = next_event.get('timestamp', 0)\n            heapq.heappush(heap, (next_ts, stream_idx, seq_counters[stream_idx], next_event))\n        except StopIteration:\n            pass\n```"
+      }
+    ],
+    "mtp": [
+      {
+        "profile": "mtp",
+        "task": "bugfix",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 1.9657315000004019,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 268,
+          "prompt_ms": 327.11,
+          "prompt_per_token_ms": 1.2205597014925373,
+          "prompt_per_second": 819.2962611965394,
+          "predicted_n": 209,
+          "predicted_ms": 1596.218,
+          "predicted_per_token_ms": 7.674125,
+          "predicted_per_second": 130.30801557180786,
+          "draft_n": 159,
+          "draft_n_accepted": 155
+        },
+        "usage": {
+          "completion_tokens": 209,
+          "prompt_tokens": 268,
+          "total_tokens": 477,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+      },
+      {
+        "profile": "mtp",
+        "task": "multi_function_edit",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 1.5856017000005522,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 240,
+          "prompt_ms": 233.403,
+          "prompt_per_token_ms": 0.9725125,
+          "prompt_per_second": 1028.264418195139,
+          "predicted_n": 161,
+          "predicted_ms": 1278.795,
+          "predicted_per_token_ms": 7.9924687500000005,
+          "predicted_per_second": 125.11778666635387,
+          "draft_n": 126,
+          "draft_n_accepted": 118
+        },
+        "usage": {
+          "completion_tokens": 161,
+          "prompt_tokens": 240,
+          "total_tokens": 401,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\ndef escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")\n```"
+      },
+      {
+        "profile": "mtp",
+        "task": "fresh_code",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 8.153401799999301,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 113,
+          "prompt_ms": 138.281,
+          "prompt_per_token_ms": 1.2237256637168141,
+          "prompt_per_second": 817.1766186243952,
+          "predicted_n": 831,
+          "predicted_ms": 7959.01,
+          "predicted_per_token_ms": 9.589168674698795,
+          "predicted_per_second": 104.28432681954163,
+          "draft_n": 789,
+          "draft_n_accepted": 567
+        },
+        "usage": {
+          "completion_tokens": 831,
+          "prompt_tokens": 113,
+          "total_tokens": 944,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    \"\"\"\n    Lazy generator that merges any number of already-sorted iterables of dicts\n    with numeric timestamp keys.\n    \n    - Ascending timestamps\n    - Ties: lower stream index first, then original order within that stream\n    - Preserves original dict objects\n    - Does not mutate inputs\n    - Empty streams work\n    - Does not materialize streams: reads at most one pending event per stream\n    \"\"\"\n    # Each heap entry: (timestamp, stream_index, original_index, event_dict)\n    heap = []\n    iterators = []\n    \n    for stream_idx, stream in enumerate(streams):\n        it = iter(stream)\n        iterators.append(it)\n        try:\n            first = next(it)\n            # Use a counter for original order within the stream\n            # We need to track the position within each stream\n            # Since we only keep one pending event per stream, we can use a per-stream counter\n            # But we need to know the original order. Since we process one at a time,\n            # the original order within a stream is preserved by the order we pull from it.\n            # For tie-breaking within the same stream, we need a sequence number.\n            # We'll use a per-stream counter that increments each time we pull from that stream.\n            heapq.heappush(heap, (first.get('timestamp', 0), stream_idx, 0, first, it))\n        except StopIteration:\n            pass\n    \n    # We need to track per-stream sequence numbers for tie-breaking within the same stream\n    # Let's restructure: use a list of (timestamp, stream_idx, seq, event, iterator)\n    # But heapq compares tuples, so we need to be careful.\n    \n    # Actually, let's redo this more carefully.\n    # We'll maintain a heap of (timestamp, stream_idx, seq, event)\n    # where seq is a per-stream sequence number to preserve original order within a stream.\n    \n    # Let me restart with a cleaner approach.\n    pass\n\n\ndef merge_sorted_events(streams):\n    \"\"\"\n    Lazy generator that merges any number of already-sorted iterables of dicts\n    with numeric timestamp keys.\n    \"\"\"\n    heap = []\n    iterators = []\n    seq_counters = []\n    \n    for stream_idx, stream in enumerate(streams):\n        it = iter(stream)\n        iterators.append(it)\n        seq_counters.append(0)\n        try:\n            first = next(it)\n            ts = first.get('timestamp', 0)\n            # Heap entry: (timestamp, stream_idx, seq, event)\n            # We need to avoid comparing dicts, so we use a unique id or just rely on the tuple\n            # Since (ts, stream_idx, seq) should be unique enough, and we don't want to compare dicts,\n            # we can use a wrapper or just ensure the first three elements are sufficient.\n            # Actually, if two entries have the same (ts, stream_idx, seq), that shouldn't happen\n            # because seq is unique per stream. But to be safe, we can add a counter.\n            heapq.heappush(heap, (ts, stream_idx, seq_counters[stream_idx], first))\n        except StopIteration:\n            pass\n    \n    while heap:\n        ts, stream_idx, seq, event = heapq.heappop(heap)\n        yield event\n        \n        # Try to get the next event from this stream\n        try:\n            next_event = next(iterators[stream_idx])\n            next_ts = next_event.get('timestamp', 0)\n            seq_counters[stream_idx] += 1\n            heapq.heappush(heap, (next_ts, stream_idx, seq_counters[stream_idx], next_event))\n        except StopIteration:\n            pass\n```"
+      }
+    ],
+    "combined": [
+      {
+        "profile": "combined",
+        "task": "bugfix",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 1.5089355000000069,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 268,
+          "prompt_ms": 509.396,
+          "prompt_per_token_ms": 1.9007313432835822,
+          "prompt_per_second": 526.1132792562172,
+          "predicted_n": 209,
+          "predicted_ms": 851.279,
+          "predicted_per_token_ms": 4.0926875,
+          "predicted_per_second": 244.33822518821677,
+          "draft_n": 344,
+          "draft_n_accepted": 191
+        },
+        "usage": {
+          "completion_tokens": 209,
+          "prompt_tokens": 268,
+          "total_tokens": 477,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+      },
+      {
+        "profile": "combined",
+        "task": "multi_function_edit",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 1.8640113000001293,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 240,
+          "prompt_ms": 237.331,
+          "prompt_per_token_ms": 0.9888791666666666,
+          "prompt_per_second": 1011.2458970804489,
+          "predicted_n": 161,
+          "predicted_ms": 1559.149,
+          "predicted_per_token_ms": 9.74468125,
+          "predicted_per_second": 102.62008313509486,
+          "draft_n": 459,
+          "draft_n_accepted": 123
+        },
+        "usage": {
+          "completion_tokens": 161,
+          "prompt_tokens": 240,
+          "total_tokens": 401,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\ndef escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")\n```"
+      },
+      {
+        "profile": "combined",
+        "task": "fresh_code",
+        "passed": true,
+        "error": "",
+        "finish": "stop",
+        "wall_seconds": 9.13615739999932,
+        "timings": {
+          "cache_n": 0,
+          "prompt_n": 113,
+          "prompt_ms": 142.275,
+          "prompt_per_token_ms": 1.259070796460177,
+          "prompt_per_second": 794.2365137937093,
+          "predicted_n": 831,
+          "predicted_ms": 8938.244,
+          "predicted_per_token_ms": 10.768968674698796,
+          "predicted_per_second": 92.85940280887387,
+          "draft_n": 1539,
+          "draft_n_accepted": 563
+        },
+        "usage": {
+          "completion_tokens": 831,
+          "prompt_tokens": 113,
+          "total_tokens": 944,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    \"\"\"\n    Lazy generator that merges any number of already-sorted iterables of dicts\n    with numeric timestamp keys.\n    \n    - Ascending timestamps\n    - Ties: lower stream index first, then original order within that stream\n    - Preserves original dict objects\n    - Does not mutate inputs\n    - Empty streams work\n    - Does not materialize streams: reads at most one pending event per stream\n    \"\"\"\n    # Each heap entry: (timestamp, stream_index, original_index, event_dict)\n    heap = []\n    iterators = []\n    \n    for stream_idx, stream in enumerate(streams):\n        it = iter(stream)\n        iterators.append(it)\n        try:\n            first = next(it)\n            # Use a counter for original order within the stream\n            # We need to track the position within each stream\n            # Since we only keep one pending event per stream, we can use a per-stream counter\n            # But we need to know the original order. Since we process one at a time,\n            # the original order within a stream is preserved by the order we pull from it.\n            # For tie-breaking within the same stream, we need a sequence number.\n            # We'll use a per-stream counter that increments each time we pull from that stream.\n            heapq.heappush(heap, (first.get('timestamp', 0), stream_idx, 0, first, it))\n        except StopIteration:\n            pass\n    \n    # We need to track per-stream sequence numbers for tie-breaking within the same stream\n    # Let's restructure: use a list of (timestamp, stream_idx, seq, event, iterator)\n    # But heapq compares tuples, so we need to be careful.\n    \n    # Actually, let's redo this more carefully.\n    # We'll maintain a heap of (timestamp, stream_idx, seq, event)\n    # where seq is a per-stream sequence number to preserve original order within a stream.\n    \n    # Let me restart with a cleaner approach.\n    pass\n\n\ndef merge_sorted_events(streams):\n    \"\"\"\n    Lazy generator that merges any number of already-sorted iterables of dicts\n    with numeric timestamp keys.\n    \"\"\"\n    heap = []\n    iterators = []\n    seq_counters = []\n    \n    for stream_idx, stream in enumerate(streams):\n        it = iter(stream)\n        iterators.append(it)\n        seq_counters.append(0)\n        try:\n            first = next(it)\n            ts = first.get('timestamp', 0)\n            # Heap entry: (timestamp, stream_idx, seq, event)\n            # We need to avoid comparing dicts, so we use a unique id or just rely on the tuple\n            # Since (ts, stream_idx, seq) should be unique enough, and we don't want to compare dicts,\n            # we can use a wrapper or just ensure the first three elements are sufficient.\n            # Actually, if two entries have the same (ts, stream_idx, seq), that shouldn't happen\n            # because seq is unique per stream. But to be safe, we can add a counter.\n            heapq.heappush(heap, (ts, stream_idx, seq_counters[stream_idx], first))\n        except StopIteration:\n            pass\n    \n    while heap:\n        ts, stream_idx, seq, event = heapq.heappop(heap)\n        yield event\n        \n        # Try to get the next event from this stream\n        try:\n            next_event = next(iterators[stream_idx])\n            next_ts = next_event.get('timestamp', 0)\n            seq_counters[stream_idx] += 1\n            heapq.heappush(heap, (next_ts, stream_idx, seq_counters[stream_idx], next_event))\n        except StopIteration:\n            pass\n```"
+      }
+    ]
+  },
+  "context": [
+    {
+      "target": 8192,
+      "phase": "cold",
+      "passed": true,
+      "answer": "```json\n{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}\n```",
+      "wall_seconds": 5.292465499999707,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 8108,
+        "prompt_ms": 4857.799,
+        "prompt_per_token_ms": 0.5991365318204243,
+        "prompt_per_second": 1669.068646109071,
+        "predicted_n": 50,
+        "predicted_ms": 429.417,
+        "predicted_per_token_ms": 8.763612244897958,
+        "predicted_per_second": 114.10819785895761,
+        "draft_n": 39,
+        "draft_n_accepted": 36
+      },
+      "usage": {
+        "completion_tokens": 50,
+        "prompt_tokens": 8108,
+        "total_tokens": 8158,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 15447,
+      "minimum_free_vram_mib": 549
+    },
+    {
+      "target": 8192,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "```json\n{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}\n```",
+      "wall_seconds": 0.924729400000615,
+      "timings": {
+        "cache_n": 8157,
+        "prompt_n": 35,
+        "prompt_ms": 187.474,
+        "prompt_per_token_ms": 5.3564,
+        "prompt_per_second": 186.69255470091852,
+        "predicted_n": 50,
+        "predicted_ms": 730.813,
+        "predicted_per_token_ms": 14.914551020408163,
+        "predicted_per_second": 67.04861571975322,
+        "draft_n": 263,
+        "draft_n_accepted": 36
+      },
+      "usage": {
+        "completion_tokens": 50,
+        "prompt_tokens": 8192,
+        "total_tokens": 8242,
+        "prompt_tokens_details": {
+          "cached_tokens": 8157
+        }
+      },
+      "peak_vram_mib": 15467,
+      "minimum_free_vram_mib": 529
+    },
+    {
+      "target": 16384,
+      "phase": "cold",
+      "passed": true,
+      "answer": "{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}",
+      "wall_seconds": 10.525073300000258,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 16299,
+        "prompt_ms": 10008.5,
+        "prompt_per_token_ms": 0.6140560770599424,
+        "prompt_per_second": 1628.5157616026377,
+        "predicted_n": 45,
+        "predicted_ms": 382.169,
+        "predicted_per_token_ms": 8.685659090909091,
+        "predicted_per_second": 115.13231057464105,
+        "draft_n": 33,
+        "draft_n_accepted": 33
+      },
+      "usage": {
+        "completion_tokens": 45,
+        "prompt_tokens": 16299,
+        "total_tokens": 16344,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 15483,
+      "minimum_free_vram_mib": 513
+    },
+    {
+      "target": 16384,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}",
+      "wall_seconds": 0.9421418000001722,
+      "timings": {
+        "cache_n": 16343,
+        "prompt_n": 35,
+        "prompt_ms": 195.976,
+        "prompt_per_token_ms": 5.599314285714286,
+        "prompt_per_second": 178.59329713842513,
+        "predicted_n": 45,
+        "predicted_ms": 726.407,
+        "predicted_per_token_ms": 16.50925,
+        "predicted_per_second": 60.57210351772491,
+        "draft_n": 258,
+        "draft_n_accepted": 31
+      },
+      "usage": {
+        "completion_tokens": 45,
+        "prompt_tokens": 16378,
+        "total_tokens": 16423,
+        "prompt_tokens_details": {
+          "cached_tokens": 16343
+        }
+      },
+      "peak_vram_mib": 15487,
+      "minimum_free_vram_mib": 509
+    },
+    {
+      "target": 32000,
+      "phase": "cold",
+      "passed": true,
+      "answer": "{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}",
+      "wall_seconds": 23.579972599999564,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 31916,
+        "prompt_ms": 22970.639,
+        "prompt_per_token_ms": 0.7197217383130717,
+        "prompt_per_second": 1389.4258666465482,
+        "predicted_n": 45,
+        "predicted_ms": 426.325,
+        "predicted_per_token_ms": 9.689204545454546,
+        "predicted_per_second": 103.20764674837272,
+        "draft_n": 33,
+        "draft_n_accepted": 33
+      },
+      "usage": {
+        "completion_tokens": 45,
+        "prompt_tokens": 31916,
+        "total_tokens": 31961,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 15499,
+      "minimum_free_vram_mib": 497
+    },
+    {
+      "target": 32000,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}",
+      "wall_seconds": 1.0420611999998073,
+      "timings": {
+        "cache_n": 31960,
+        "prompt_n": 35,
+        "prompt_ms": 204.323,
+        "prompt_per_token_ms": 5.8378000000000005,
+        "prompt_per_second": 171.2974065572647,
+        "predicted_n": 45,
+        "predicted_ms": 810.149,
+        "predicted_per_token_ms": 18.412477272727273,
+        "predicted_per_second": 54.31099711287677,
+        "draft_n": 258,
+        "draft_n_accepted": 31
+      },
+      "usage": {
+        "completion_tokens": 45,
+        "prompt_tokens": 31995,
+        "total_tokens": 32040,
+        "prompt_tokens_details": {
+          "cached_tokens": 31960
+        }
+      },
+      "peak_vram_mib": 15499,
+      "minimum_free_vram_mib": 497
+    }
+  ]
+}

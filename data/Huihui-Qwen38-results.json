@@ -1,0 +1,234 @@
+{
+  "model": "Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S-mtp.gguf",
+  "size": 12120016416,
+  "sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+  "runtime": "llama.cpp b12110 CUDA 13.4",
+  "context": 32768,
+  "kv": "q8_0",
+  "mtp_max_draft": 3,
+  "coding": [
+    {
+      "profile": "huihui-32k",
+      "task": "bugfix",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 2.6117195000006177,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 268,
+        "prompt_ms": 737.491,
+        "prompt_per_token_ms": 2.751832089552239,
+        "prompt_per_second": 363.3942651503544,
+        "predicted_n": 209,
+        "predicted_ms": 1835.635,
+        "predicted_per_token_ms": 8.825168269230769,
+        "predicted_per_second": 113.31228702873938,
+        "draft_n": 156,
+        "draft_n_accepted": 156
+      },
+      "usage": {
+        "completion_tokens": 209,
+        "prompt_tokens": 268,
+        "total_tokens": 477,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nclass TTLCache:\n    def __init__(self):\n        self._items = {}\n\n    def set(self, key, value, ttl, now):\n        if ttl < 0:\n            raise ValueError(\"negative ttl\")\n        self._items[key] = (value, now + ttl)\n\n    def get(self, key, now, default=None):\n        item = self._items.get(key)\n        if item is None:\n            return default\n        value, expires = item\n        if now >= expires:\n            del self._items[key]\n            return default\n        return value\n\n    def purge(self, now):\n        expired = [key for key, (_, expiry) in self._items.items() if now >= expiry]\n        for key in expired:\n            del self._items[key]\n        return len(expired)\n\n    def delete(self, key):\n        return self._items.pop(key, None) is not None\n```"
+    },
+    {
+      "profile": "huihui-32k",
+      "task": "multi_function_edit",
+      "passed": true,
+      "error": "",
+      "finish": "stop",
+      "wall_seconds": 1.7811357000027783,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 240,
+        "prompt_ms": 267.784,
+        "prompt_per_token_ms": 1.1157666666666666,
+        "prompt_per_second": 896.2447345621845,
+        "predicted_n": 156,
+        "predicted_ms": 1452.855,
+        "predicted_per_token_ms": 9.37325806451613,
+        "predicted_per_second": 106.68648970475374,
+        "draft_n": 120,
+        "draft_n_accepted": 116
+      },
+      "usage": {
+        "completion_tokens": 156,
+        "prompt_tokens": 240,
+        "total_tokens": 396,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "def escape_cell(value, delimiter=\",\"):\n    text = \"\" if value is None else str(value)\n    if any(char in text for char in (delimiter, '\"', \"\\n\", \"\\r\")):\n        return '\"' + text.replace('\"', '\"\"') + '\"'\n    return text\n\n\ndef format_row(values, delimiter=\",\"):\n    return delimiter.join(escape_cell(value, delimiter) for value in values)\n\n\ndef export_csv(rows, header=None, delimiter=\",\", newline=\"\\n\"):\n    lines = []\n    if header is not None:\n        lines.append(format_row(header, delimiter))\n    lines.extend(format_row(row, delimiter) for row in rows)\n    return newline.join(lines) + (newline if lines else \"\")"
+    },
+    {
+      "profile": "huihui-32k",
+      "task": "fresh_code",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"<BENCHMARK_OUTPUT>/qwen38-huihui-32k-fresh_code.py\", line 139, in <module>\n    g=merge_sorted_events([stream(),[c,d],[]]); assert count[0]==0; assert next(g) is a; assert count[0]==1; assert list(g)==[c,b,d]; assert list(merge_sorted_events([]))==[]\n                                                                           ^^^^^^^\n  File \"<BENCHMARK_OUTPUT>/qwen38-huihui-32k-fresh_code.py\", line 23, in merge_sorted_events\n    event = next(stream)\n            ^^^^^^^^^^^^\nTypeError: 'list' object is not an iterator\n",
+      "finish": "stop",
+      "wall_seconds": 12.839782499999274,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 113,
+        "prompt_ms": 154.898,
+        "prompt_per_token_ms": 1.3707787610619468,
+        "prompt_per_second": 729.5123242391767,
+        "predicted_n": 1147,
+        "predicted_ms": 12566.157,
+        "predicted_per_token_ms": 10.965232984293193,
+        "predicted_per_second": 91.19733264513566,
+        "draft_n": 1140,
+        "draft_n_accepted": 766
+      },
+      "usage": {
+        "completion_tokens": 1147,
+        "prompt_tokens": 113,
+        "total_tokens": 1260,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "text": "```python\nimport heapq\n\n\ndef merge_sorted_events(streams):\n    \"\"\"\n    Lazily merge any number of already-sorted iterables of dicts with numeric timestamp keys.\n    \n    Args:\n        streams: An iterable of iterables, where each inner iterable yields dicts\n                 with a numeric 'timestamp' key.\n    \n    Yields:\n        Dicts in ascending order of timestamp. Ties are broken by lower stream index\n        first, then by original order within that stream.\n    \"\"\"\n    # Create a heap of (timestamp, stream_index, sequence_number, event)\n    # We use sequence_number to maintain stable ordering within a stream\n    heap = []\n    \n    # Pre-load the first event from each stream\n    for stream_idx, stream in enumerate(streams):\n        try:\n            event = next(stream)\n            timestamp = event['timestamp']\n            # Use a tuple: (timestamp, stream_idx, seq, event)\n            # seq is a counter per stream to maintain original order\n            heapq.heappush(heap, (timestamp, stream_idx, 0, event))\n        except StopIteration:\n            pass\n    \n    # We need to track the next sequence number for each stream\n    # Since we can't easily store mutable state in the heap, we'll use a different approach\n    # Actually, let's use a wrapper that tracks position\n    \n    # Better approach: use a helper that yields (timestamp, stream_idx, seq, event)\n    # where seq is incremented for each event from that stream\n    \n    # Let's restructure: we'll create iterators that yield (timestamp, stream_idx, seq, event)\n    # But we need to be careful about memory - we should only have one pending per stream\n    \n    # Actually, the standard approach is to use a heap with (timestamp, stream_idx, seq, event)\n    # and maintain a separate counter for each stream's sequence number\n    \n    # Let me redo this properly\n    \n    # Clear the heap and restart\n    heap = []\n    \n    # We'll use a list of iterators and track sequence numbers\n    # But to keep it simple and lazy, let's use a different strategy:\n    # Each entry in the heap is (timestamp, stream_idx, seq, event)\n    # We need to know the next seq for each stream when we push the next event\n    \n    # Let's use a dictionary to track the next sequence number for each stream\n    # But we want to avoid materializing, so let's think differently\n    \n    # Actually, the cleanest way is to wrap each stream in a generator that yields\n    # (timestamp, stream_idx, seq, event) tuples, where seq is a local counter\n    \n    # Let's implement it that way\n    \n    # First, let's clear and rebuild\n    heap = []\n    \n    # Create wrapped iterators\n    def wrapped_stream(stream_idx, stream):\n        seq = 0\n        for event in stream:\n            timestamp = event['timestamp']\n            yield (timestamp, stream_idx, seq, event)\n            seq += 1\n    \n    # Push the first element from each wrapped stream\n    for stream_idx, stream in enumerate(streams):\n        wrapped = wrapped_stream(stream_idx, stream)\n        try:\n            first = next(wrapped)\n            heapq.heappush(heap, first)\n            # We need to keep the wrapped iterator around to get the next element\n            # But heapq doesn't support that directly, so we need a different approach\n        except StopIteration:\n            pass\n    \n    # Hmm, this is getting complicated. Let me use a simpler approach:\n    # Store (timestamp, stream_idx, seq, event, iterator) in the heap\n    # But tuples with iterators might have comparison issues\n    \n    # Better: use a class or just track iterators separately\n    \n    # Let me use the standard approach with a list of iterators\n    \n    # Actually, let me just implement it cleanly:\n    \n    # Create a list of (iterator, stream_idx, seq)\n    # And push (timestamp, stream_idx, seq, event) to heap\n    \n    # When we pop, we advance the corresponding iterator and push the next event\n    \n    # Let's restart with a clean implementation\n    \n    # Clear everything\n    heap = []\n    iterators = []\n    seq_counters = {}\n    \n    for stream_idx, stream in enumerate(streams):\n        it = iter(stream)\n        iterators.append(it)\n        seq_counters[stream_idx] = 0\n        try:\n            event = next(it)\n            timestamp = event['timestamp']\n            seq = seq_counters[stream_idx]\n            heapq.heappush(heap, (timestamp, stream_idx, seq, event))\n            seq_counters[stream_idx] = seq + 1\n        except StopIteration:\n            pass\n    \n    while heap:\n        timestamp, stream_idx, seq, event = heapq.heappop(heap)\n        yield event\n        \n        # Try to get the next event from this stream\n        try:\n            next_event = next(iterators[stream_idx])\n            next_timestamp = next_event['timestamp']\n            next_seq = seq_counters[stream_idx]\n            heapq.heappush(heap, (next_timestamp, stream_idx, next_seq, next_event))\n            seq_counters[stream_idx] = next_seq + 1\n        except StopIteration:\n            pass\n```"
+    }
+  ],
+  "context_checks": [
+    {
+      "target": 32000,
+      "phase": "cold",
+      "passed": true,
+      "answer": "```json\n{\n  \"start\": \"HIGHLAND-483\",\n  \"middle\": \"AMBER-729\",\n  \"end\": \"WILLOW-916\"\n}\n```",
+      "wall_seconds": 28.02042729999812,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 31916,
+        "prompt_ms": 27311.547,
+        "prompt_per_token_ms": 0.8557321406191252,
+        "prompt_per_second": 1168.58997405017,
+        "predicted_n": 50,
+        "predicted_ms": 599.638,
+        "predicted_per_token_ms": 12.237510204081634,
+        "predicted_per_second": 81.71596863440942,
+        "draft_n": 39,
+        "draft_n_accepted": 36
+      },
+      "usage": {
+        "completion_tokens": 50,
+        "prompt_tokens": 31916,
+        "total_tokens": 31966,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "peak_vram_mib": 15136,
+      "minimum_free_vram_mib": 860
+    },
+    {
+      "target": 32000,
+      "phase": "resumed",
+      "passed": true,
+      "answer": "```json\n{\n  \"end\": \"WILLOW-916\",\n  \"middle\": \"AMBER-729\",\n  \"start\": \"HIGHLAND-483\"\n}\n```",
+      "wall_seconds": 0.835092799999984,
+      "timings": {
+        "cache_n": 31965,
+        "prompt_n": 35,
+        "prompt_ms": 254.3,
+        "prompt_per_token_ms": 7.265714285714286,
+        "prompt_per_second": 137.6327172630751,
+        "predicted_n": 50,
+        "predicted_ms": 540.678,
+        "predicted_per_token_ms": 11.034244897959184,
+        "predicted_per_second": 90.62695356570825,
+        "draft_n": 39,
+        "draft_n_accepted": 36
+      },
+      "usage": {
+        "completion_tokens": 50,
+        "prompt_tokens": 32000,
+        "total_tokens": 32050,
+        "prompt_tokens_details": {
+          "cached_tokens": 31965
+        }
+      },
+      "peak_vram_mib": 15134,
+      "minimum_free_vram_mib": 862
+    }
+  ],
+  "chat_and_security": [
+    {
+      "task": "chat",
+      "thinking": true,
+      "wall_seconds": 6.955553399999189,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 74,
+        "prompt_ms": 239.365,
+        "prompt_per_token_ms": 3.234662162162162,
+        "prompt_per_second": 309.15129613769767,
+        "predicted_n": 418,
+        "predicted_ms": 6185.786,
+        "predicted_per_token_ms": 14.834019184652279,
+        "predicted_per_second": 67.41261336877804,
+        "draft_n": 570,
+        "draft_n_accepted": 228
+      },
+      "usage": {
+        "completion_tokens": 418,
+        "prompt_tokens": 74,
+        "total_tokens": 492,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "When running a local language model, the CPU and GPU act as a coordinated team. The CPU is responsible for overall orchestration: it runs the inference framework, manages memory, prepares input tokens, schedules operations, and controls the generation loop. It also handles tasks that are not well suited to the GPU, such as preprocessing text, managing model state, and moving data between components.\n\nThe GPU takes over the heavy mathematical work, especially the large matrix multiplications and attention calculations that make up most of a language model’s inference. These operations are highly parallel, so the GPU can process many calculations simultaneously, making token generation much faster than on CPU alone. In a typical setup, model weights and intermediate activations are stored in GPU memory, and each step of generation is executed on the GPU.\n\nHowever, the CPU and GPU still need to exchange data, and that transfer can become a bottleneck. If the model is too large for the GPU’s memory, some parts may run on the CPU or be split across both devices, which can reduce performance. In well-optimized local inference systems, the CPU minimizes back-and-forth transfers by batching operations and keeping the GPU busy, while the CPU remains the manager that coordinates the whole process.",
+          "reasoning_content": "We need answer user: \"Explain how a CPU and GPU work together when running a local language model. Use a few clear paragraphs.\" Need final concise but clear paragraphs. Need explain CPU/GPU roles: CPU orchestrates, preprocessing, memory management, scheduling, moving data, tokenization; GPU accelerates matrix multiplications, attention, inference if model fits in VRAM; data transfer bottlenecks; offloading; batch sizes; memory constraints. Also mention local LLM runtime: model weights may be on GPU, CPU fallback, CPU handles text generation? Actually generation loop: CPU manages loop, sends tensor batches to GPU, GPU computes logits, returns. For small models or when GPU memory insufficient, CPU does much of inference, slower. Use few clear paragraphs. Ensure not too technical. Final maybe 3 paragraphs."
+        }
+      }
+    },
+    {
+      "task": "security_review",
+      "thinking": false,
+      "wall_seconds": 3.2897819000027084,
+      "timings": {
+        "cache_n": 0,
+        "prompt_n": 109,
+        "prompt_ms": 154.594,
+        "prompt_per_token_ms": 1.4182935779816512,
+        "prompt_per_second": 705.0726418877834,
+        "predicted_n": 300,
+        "predicted_ms": 3069.755,
+        "predicted_per_token_ms": 10.266739130434782,
+        "predicted_per_second": 97.40190992440765,
+        "draft_n": 282,
+        "draft_n_accepted": 206
+      },
+      "usage": {
+        "completion_tokens": 300,
+        "prompt_tokens": 109,
+        "total_tokens": 409,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "choice": {
+        "finish_reason": "stop",
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "```json\n[\n  {\n    \"cwe\": \"CWE-89\",\n    \"explanation\": \"The function constructs a SQL query using an f-string that directly interpolates the untrusted `name` parameter into the SQL statement. This allows an attacker to inject arbitrary SQL code (e.g., `' OR '1'='1`), potentially leading to data leakage, modification, or deletion.\",\n    \"mitigation\": \"Use parameterized queries (prepared statements) to separate SQL logic from data. For example: `db.execute(\\\"SELECT name FROM users WHERE name = ?\\\", (name,)).fetchone()`.\"\n  },\n  {\n    \"cwe\": \"CWE-79\",\n    \"explanation\": \"The function returns an HTML string where the database value `row[0]` is directly interpolated into an `<h1>` tag without escaping. If the stored name contains HTML or JavaScript (e.g., `<script>alert('xss')</script>`), it will be rendered as active HTML/JS in the browser, leading to Cross-Site Scripting (XSS).\",\n    \"mitigation\": \"Escape the output for the HTML context before embedding it in the response. Use a templating engine with auto-escaping (e.g., Jinja2) or an HTML escaping library (e.g., `html.escape(row[0])` in Python).\"\n  }\n]\n```"
+        }
+      }
+    }
+  ]
+}
