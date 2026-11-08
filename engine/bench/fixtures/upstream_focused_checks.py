@@ -130,4 +130,3 @@ def context_checks():
 if __name__=='__main__':
     if sys.argv[1]=='context':context_checks()
     else:coding(sys.argv[1])
-

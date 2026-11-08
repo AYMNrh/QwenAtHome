@@ -71,5 +71,6 @@
       "original_sha256": "ff04eacaf9b599995d7007baab0183177568b45605f6b02ea155fb9c7865a487",
       "published_sha256": "13eda61055e28d1d5c6335a223b548ce384b0697af283e21679cd2e885a9d3c4"
     }
-  ]
+  ],
+  "hash_encoding": "Published hashes identify UTF-8 files with LF line endings as stored in Git."
 }
