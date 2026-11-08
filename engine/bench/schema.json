@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QAH reference measurement row v1",
+  "type": "object",
+  "required": ["schema_version", "run_id", "provenance", "model_sha256", "reference_version", "reference_binary_sha256", "context", "phase", "status", "key_type", "value_type", "speculation", "cli"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "run_id": {"type": "string"},
+    "provenance": {
+      "type": "object",
+      "required": ["commit_sha", "source_sha256", "git_status"],
+      "properties": {
+        "commit_sha": {"type": ["string", "null"]},
+        "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "git_status": {"type": "string"}
+      }
+    },
+    "model_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "reference_binary_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "context": {"type": "integer", "minimum": 1},
+    "phase": {"enum": ["gate", "execution", "allocation", "cold", "warm_prefix", "tool_turn"]},
+    "status": {"enum": ["ok", "allocated", "failed", "refused_budget", "unsupported", "cancelled"]},
+    "measurement": {
+      "type": "object",
+      "required": ["content", "sampling", "response", "ttft_seconds", "elapsed_seconds", "timings", "generated_tokens", "mtp_acceptance"],
+      "properties": {
+        "ttft_seconds": {"type": ["number", "null"]},
+        "elapsed_seconds": {"type": "number"},
+        "generated_tokens": {"type": ["integer", "null"]},
+        "retrieval_exact_match": {"type": ["boolean", "null"]},
+        "mtp_acceptance": {"type": ["object", "null"]}
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "ok"}}},
+     "then": {"required": ["measurement", "memory", "prompt_tokens", "reference_argv", "raw_log", "quality_pass", "sustained_decode_complete"]}}
+  ]
+}

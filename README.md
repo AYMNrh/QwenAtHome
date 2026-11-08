@@ -58,3 +58,7 @@ Pink bars include failed code. The configurations differ in context, precision, 
 ![Cold versus cached complete-response latency on a logarithmic seconds axis. Q3 uses an 84K prompt; the other rows use 32K.](docs/assets/context-cache-latency.png)
 
 All eight shown retrieval checks passed. These are complete-response times, not time to first token. [See lookup and MTP charts, exports, and methodology](docs/visuals.md).
+
+## Specialized engine development
+
+The new [engine source and reproducible benchmark harness](engine/README.md) live under `engine/`. See the [matched Huihui abliterated vs Q3_K_XL comparison](engine/docs/model-comparison.md), [context measurements](engine/docs/benchmark-results.md), and [progress log](engine/docs/progress.md). Huihui is the preferred candidate; larger-context and MTP equivalence limits remain explicit.

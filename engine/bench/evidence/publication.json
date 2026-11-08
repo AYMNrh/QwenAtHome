@@ -1,0 +1,75 @@
+{
+  "sanitization": "Path placeholders and duplicate output removal; original files unchanged. Full logs/source snapshots remain local. Compute reservations are not simultaneous peak memory.",
+  "files": [
+    {
+      "file": "context-probes.jsonl",
+      "original_sha256": "a2e447d432a20d574d7956abce539322192c318db88c01eaebf89c3cd266719d",
+      "published_sha256": "a4e5bf1d0fb862636aa32bd812c889f05bcaf39dc8ddc9777fd947f3d014be70"
+    },
+    {
+      "file": "context-probes-summary.json",
+      "original_sha256": "c17105eac21fe2d4c36be576138ffd0da08c34139b27334d2a2c04ae38a0f6af",
+      "published_sha256": "dba839884200203899bc8a99ee3e86cdd848cfbffb5d10f2272852d9b5bbe433"
+    },
+    {
+      "file": "baseline-f16.jsonl",
+      "original_sha256": "7f278751182e8aa029e5cbc0f2780e0f467a4b10c6e7c2660c2200ffa01e7dc5",
+      "published_sha256": "52201549b4f141eef70758ee629f2ce1a65254cb649e30aff4ec36307efc427f"
+    },
+    {
+      "file": "baseline-f16-summary.json",
+      "original_sha256": "035bf10339fed7cadc443b46f54116ce5726caf3e581a92612d92039dda396ed",
+      "published_sha256": "b89742e3c8b6e3ce10ff96c2c2a2adca4106d3ab5a21aed7cfc72e26443a03eb"
+    },
+    {
+      "file": "allocation-verified-q4.jsonl",
+      "original_sha256": "fbc24b721522248f2311fcf23b766fc73810132ce44da247076fc41c4dd51037",
+      "published_sha256": "d8acdf38e59accb8e01781dc291295d035df1cde0df71ee3537efd97cd734793"
+    },
+    {
+      "file": "allocation-256k-cpu.jsonl",
+      "original_sha256": "6496aeddf15ecdb20cb466ce9206de39082be2c243fb56a783efc86d8a41fd88",
+      "published_sha256": "6dd9a24b72aef47451f0d7c48be7ba96bc3069e8b8070b6628cb67ebcfa25fdf"
+    },
+    {
+      "file": "compare-coding-32k.jsonl",
+      "original_sha256": "f174614f7bccf881097aa01671f6170ae63828a51035f6a9ddd099d35723bfcf",
+      "published_sha256": "82949326b390563ef1eae54c2497017603d2ca89935d07126a77935b40668d34"
+    },
+    {
+      "file": "compare-coding-32k-summary.json",
+      "original_sha256": "9aef93e834572b749a4c2e4e414afd6dc43d78cd72f3cf94bf7b6146d1f5e48b",
+      "published_sha256": "7c08a6c9e078b11b0f5997b3fbfc3b4d59ef55c0a6e34253d7c06dd078bfeb20"
+    },
+    {
+      "file": "compare-context-mtp3-v2.jsonl",
+      "original_sha256": "98c6ed66dfc7c207a4f4de290d1807d6b88101027857713197323469174c4f48",
+      "published_sha256": "0e6b39de1df019df209dee36793707cac05400296206d4de55b3622d63688386"
+    },
+    {
+      "file": "compare-context-mtp3-v2-summary.json",
+      "original_sha256": "2d3649899f25abf288691c77ea4b0ae322c21617e6f9c46cb8a3ec5b8e174bd2",
+      "published_sha256": "164c75179b19068f1fe58d8a6d5b04ed9cfd765e15fa674ba794544fca95c819"
+    },
+    {
+      "file": "compare-pressure-outcome.jsonl",
+      "original_sha256": "ad497354ff6a5dc08a6401374127d80e73dc85290c1129797f736114d7e04297",
+      "published_sha256": "9a17891e331e50de94d4e4561a7ac032692d96a4da9acddf70685c14655d9dc1"
+    },
+    {
+      "file": "compare-context-draft4.jsonl",
+      "original_sha256": "0322eabd856eb5435d78177a71bd880b9ad3653cdfaf5c8faa849afcb2452e3c",
+      "published_sha256": "a247a06d8ed1c6196cb2646a371ff7253eadfe2cbd722b7fd9480f8b65cb4fbc"
+    },
+    {
+      "file": "compare-q3-draft4-budget.jsonl",
+      "original_sha256": "9a5c0333afd0d08411d720cc8c9b8c79c9955757ea216f56d7b16987dfc90a17",
+      "published_sha256": "a3536ca5a10410cacfe98fc2faac10cf2b5dc7097f7896bb9bcd34c0817d56f1"
+    },
+    {
+      "file": "compare-buffer-allocations.json",
+      "original_sha256": "ff04eacaf9b599995d7007baab0183177568b45605f6b02ea155fb9c7865a487",
+      "published_sha256": "13eda61055e28d1d5c6335a223b548ce384b0697af283e21679cd2e885a9d3c4"
+    }
+  ]
+}

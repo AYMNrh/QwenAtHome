@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "filler": "# repository inventory\nmodule_{i}: reads validated input and returns an unchanged copy; owner=team_{team}.\n",
+  "retrieval": {
+    "needle": "\n# release configuration\nRELEASE_SIGNING_KEY = \"{answer}\"\n",
+    "question": "Read the repository above. Return only the exact RELEASE_SIGNING_KEY value, without explanation."
+  },
+  "decode": {
+    "needle": "\n# Implement a complete robust parser for the repository inventory format.\n",
+    "question": "Write a complete Python implementation with detailed error handling and examples. Continue until finished."
+  },
+  "code": {
+    "needle": "\n# config.py\nRETRY_BASE = 7\n# worker.py\nfrom config import RETRY_BASE\ndef delay(attempt):\n    return RETRY_BASE * (2 ** attempt)\n# api.py\nfrom worker import delay\ndef budget():\n    return delay(3) + 5\n",
+    "question": "Trace api.budget through worker.delay and config.RETRY_BASE. Return only the decimal integer result.",
+    "answer": "61"
+  },
+  "tool_suffix": "\n<tool_result>Unit tests passed: 3; failures: 0.</tool_result>\nReturn only the number of passed unit tests."
+}

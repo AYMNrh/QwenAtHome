@@ -1,0 +1,470 @@
+[
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 8192,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "retrieval",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 1,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 4.4503838999999985,
+      "p95": 4.4503838999999985
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 4.876880400000001,
+      "p95": 4.876880400000001
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 32.87596602503739,
+      "p95": 32.87596602503739
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1813.2833179284087,
+      "p95": 1813.2833179284087
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 8192,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "code",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 4.304989299999999,
+      "p95": 4.304989299999999
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 4.7634528,
+      "p95": 4.7634528
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 34.94075358470294,
+      "p95": 34.94075358470294
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1874.4684976308188,
+      "p95": 1874.4684976308188
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 8192,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "decode",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 1,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 4.289575599999999,
+      "p95": 4.289575599999999
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 7.8683215,
+      "p95": 7.8683215
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 35.493310908268235,
+      "p95": 35.493310908268235
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1881.3321128668606,
+      "p95": 1881.3321128668606
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 32768,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "retrieval",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 1,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 20.7731615,
+      "p95": 20.7731615
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 21.226227700000003,
+      "p95": 21.226227700000003
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 31.02156220155596,
+      "p95": 31.02156220155596
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1572.936944934195,
+      "p95": 1572.936944934195
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 32768,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "code",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 20.805400699999993,
+      "p95": 20.805400699999993
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 21.748869299999996,
+      "p95": 21.748869299999996
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 31.844192733792102,
+      "p95": 31.844192733792102
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1569.576293747509,
+      "p95": 1569.576293747509
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 32768,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "decode",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 1,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 20.84323470000001,
+      "p95": 20.84323470000001
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 24.8917469,
+      "p95": 24.8917469
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 31.38544239387396,
+      "p95": 31.38544239387396
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1566.863809200067,
+      "p95": 1566.863809200067
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 86016,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "retrieval",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 1,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 81.0540589,
+      "p95": 81.0540589
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 81.590224,
+      "p95": 81.590224
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 26.35566976345786,
+      "p95": 26.35566976345786
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1060.0083557099094,
+      "p95": 1060.0083557099094
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 86016,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "code",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 81.00477130000002,
+      "p95": 81.00477130000002
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 85.74504029999997,
+      "p95": 85.74504029999997
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 26.816693750823504,
+      "p95": 26.816693750823504
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1060.7419154044521,
+      "p95": 1060.7419154044521
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 86016,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "decode",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 1,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 81.15444499999995,
+      "p95": 81.15444499999995
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 85.8928158,
+      "p95": 85.8928158
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 26.828244522337894,
+      "p95": 26.828244522337894
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 1058.7514540928737,
+      "p95": 1058.7514540928737
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 131072,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "retrieval",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 1,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 164.9677956,
+      "p95": 164.9677956
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 165.5939692,
+      "p95": 165.5939692
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 22.62981024904106,
+      "p95": 22.62981024904106
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 793.9873625380993,
+      "p95": 793.9873625380993
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 131072,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "code",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 1,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 164.7623221,
+      "p95": 164.7623221
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 170.0744277,
+      "p95": 170.0744277
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 22.80734690615512,
+      "p95": 22.80734690615512
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 794.9479525611381,
+      "p95": 794.9479525611381
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "3ce368f751e40bd0260afd3e9d1f3a984b73492bfb10b2ae971009c147fe9178",
+    "context": 131072,
+    "key_type": "q4_0",
+    "value_type": "q4_0",
+    "gpu_layers": 64,
+    "task": "decode",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 1,
+    "successes": 1,
+    "outcomes": [
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 1,
+    "ttft_seconds": {
+      "n": 1,
+      "median": 164.92214590000003,
+      "p95": 164.92214590000003
+    },
+    "elapsed_seconds": {
+      "n": 1,
+      "median": 170.5286489,
+      "p95": 170.5286489
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 1,
+      "median": 22.679288256075235,
+      "p95": 22.679288256075235
+    },
+    "prompt_tokens_per_second": {
+      "n": 1,
+      "median": 794.2038060899578,
+      "p95": 794.2038060899578
+    }
+  }
+]

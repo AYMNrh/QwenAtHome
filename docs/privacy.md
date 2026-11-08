@@ -9,3 +9,5 @@ Windows absolute paths in retained JSON/errors are replaced with placeholders. S
 Raw data contains synthetic prompts, generated code, and a basic security-review response. These are evidence rather than executable recommendations. File hashes refer to public model artifacts. Hardware is described only at the model/specification level needed to interpret performance.
 
 The original local files were not modified by sanitization. The repository's documentation commit is the intended publication boundary; no unrelated workspace files or account configuration are staged.
+
+The `engine/` development package adds inference-inspection/planning code, tests and sanitized synthetic benchmark evidence. Raw local logs, source-snapshot working files, generated-module execution directories, model weights and binaries remain excluded. Historical measurement provenance is retained with path placeholders; publication hashes identify the sanitized evidence separately.

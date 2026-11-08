@@ -1,0 +1,30 @@
+{
+  "status": "experimental; no production profiles validated",
+  "reference": "<LLAMA_SERVER>",
+  "initial_model": "<MODEL_DIR>/Huihui-Qwen3.8-27B-abliterated-GSQ-RCO-IQ3_S-mtp.gguf",
+  "preferred_model": "huihui",
+  "comparison_model": "q3",
+  "model_preference_source": "User prefers the abliterated variant; benchmark both before choosing settings",
+  "baseline_claim": {
+    "context_approx_tokens": 84000,
+    "tokens_per_second_approx": 70,
+    "source": "user",
+    "reproduced": false
+  },
+  "contexts": [
+    8192,
+    32768,
+    86016,
+    131072,
+    262144,
+    524288
+  ],
+  "reference_kv": "f16",
+  "lossy_experiments": [
+    "q8_0",
+    "q4_0"
+  ],
+  "speculation": "none",
+  "context_shift": false,
+  "positional_override": false
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "44067243eeac389d136cc8258650b7b53d2c6e243548ac898ec0b9c0efa893e2",
+    "context": 8192,
+    "key_type": "f16",
+    "value_type": "f16",
+    "gpu_layers": 99,
+    "task": "retrieval",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 3,
+    "successes": 3,
+    "outcomes": [
+      "ok",
+      "ok",
+      "ok"
+    ],
+    "quality_passes": 3,
+    "quality_measured": 3,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 3,
+      "median": 4.127717799999999,
+      "p95": 4.131551199999999
+    },
+    "elapsed_seconds": {
+      "n": 3,
+      "median": 4.4098962,
+      "p95": 4.4248233
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 3,
+      "median": 50.37710864183315,
+      "p95": 50.557139679265504
+    },
+    "prompt_tokens_per_second": {
+      "n": 3,
+      "median": 1963.0002570914387,
+      "p95": 1974.742980943473
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "44067243eeac389d136cc8258650b7b53d2c6e243548ac898ec0b9c0efa893e2",
+    "context": 8192,
+    "key_type": "f16",
+    "value_type": "f16",
+    "gpu_layers": 99,
+    "task": "code",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 3,
+    "successes": 3,
+    "outcomes": [
+      "ok",
+      "ok",
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 3,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": {
+      "n": 3,
+      "median": 4.035267599999997,
+      "p95": 4.105247899999998
+    },
+    "elapsed_seconds": {
+      "n": 3,
+      "median": 4.352964300000004,
+      "p95": 4.412940499999998
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 3,
+      "median": 51.935742502588674,
+      "p95": 52.06265740819076
+    },
+    "prompt_tokens_per_second": {
+      "n": 3,
+      "median": 2010.605864894667,
+      "p95": 2012.2190586069096
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "44067243eeac389d136cc8258650b7b53d2c6e243548ac898ec0b9c0efa893e2",
+    "context": 8192,
+    "key_type": "f16",
+    "value_type": "f16",
+    "gpu_layers": 99,
+    "task": "decode",
+    "depth": 0.5,
+    "phase": "cold",
+    "trials": 3,
+    "successes": 3,
+    "outcomes": [
+      "ok",
+      "ok",
+      "ok"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 3,
+    "ttft_seconds": {
+      "n": 3,
+      "median": 4.040244399999999,
+      "p95": 4.04687169999999
+    },
+    "elapsed_seconds": {
+      "n": 3,
+      "median": 6.4679867999999985,
+      "p95": 6.473407000000002
+    },
+    "accepted_output_tokens_per_second": {
+      "n": 3,
+      "median": 52.34784192930238,
+      "p95": 52.66510302455272
+    },
+    "prompt_tokens_per_second": {
+      "n": 3,
+      "median": 2007.6321394441575,
+      "p95": 2008.1116453290795
+    }
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "44067243eeac389d136cc8258650b7b53d2c6e243548ac898ec0b9c0efa893e2",
+    "context": 131072,
+    "key_type": "f16",
+    "value_type": "f16",
+    "gpu_layers": 99,
+    "task": null,
+    "depth": null,
+    "phase": "gate",
+    "trials": 1,
+    "successes": 0,
+    "outcomes": [
+      "refused_budget"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": null,
+    "elapsed_seconds": null,
+    "accepted_output_tokens_per_second": null,
+    "prompt_tokens_per_second": null
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "44067243eeac389d136cc8258650b7b53d2c6e243548ac898ec0b9c0efa893e2",
+    "context": 262144,
+    "key_type": "f16",
+    "value_type": "f16",
+    "gpu_layers": 99,
+    "task": null,
+    "depth": null,
+    "phase": "gate",
+    "trials": 1,
+    "successes": 0,
+    "outcomes": [
+      "refused_budget"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": null,
+    "elapsed_seconds": null,
+    "accepted_output_tokens_per_second": null,
+    "prompt_tokens_per_second": null
+  },
+  {
+    "model_sha256": "eea0638e283433e27b0edbd409b552be467a75ecc777d91c51db554c0a644c19",
+    "source_sha256": "44067243eeac389d136cc8258650b7b53d2c6e243548ac898ec0b9c0efa893e2",
+    "context": 524288,
+    "key_type": "f16",
+    "value_type": "f16",
+    "gpu_layers": 99,
+    "task": null,
+    "depth": null,
+    "phase": "gate",
+    "trials": 1,
+    "successes": 0,
+    "outcomes": [
+      "unsupported"
+    ],
+    "quality_passes": 0,
+    "quality_measured": 0,
+    "sustained_decode_complete": 0,
+    "ttft_seconds": null,
+    "elapsed_seconds": null,
+    "accepted_output_tokens_per_second": null,
+    "prompt_tokens_per_second": null
+  }
+]

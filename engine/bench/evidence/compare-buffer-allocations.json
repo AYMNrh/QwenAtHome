@@ -1,0 +1,400 @@
+{
+  "parser_file_sha256": "b514567b315f3fe59c596142a97f2e3c71af96a3e44983cec282ada325a96c29",
+  "note": "Older raw backend_allocations fields kept only the last MTP KV buffer; use these reparsed complete logs. Compute values are last reservations, not summed live workspace.",
+  "logs": {
+    "<LOCAL_PATH>/19efeb21-4f86-4bf2-b200-210ede8ddf61-huihui-c32768-mtp0.log": {
+      "CPU_Mapped_model_bytes": 407245947,
+      "CUDA0_model_bytes": 11353309839,
+      "CUDA0_KV_bytes": 603979776,
+      "CUDA0_RS_bytes": 156887941,
+      "CUDA0_compute_bytes": 168831222,
+      "CUDA_Host_compute_bytes": 18884854,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          407245947
+        ],
+        "CUDA0_model_bytes": [
+          11353309839
+        ],
+        "CUDA0_KV_bytes": [
+          603979776
+        ],
+        "CUDA0_RS_bytes": [
+          156887941
+        ],
+        "CUDA0_compute_bytes": [
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222
+        ],
+        "CUDA_Host_compute_bytes": [
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/19efeb21-4f86-4bf2-b200-210ede8ddf61-huihui-c32768-mtp3.log": {
+      "CPU_Mapped_model_bytes": 407245947,
+      "CUDA0_model_bytes": 11701783101,
+      "CUDA0_KV_bytes": 675282944,
+      "CUDA0_RS_bytes": 627572736,
+      "CUDA0_compute_bytes": 168831222,
+      "CUDA_Host_compute_bytes": 18884854,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          407245947
+        ],
+        "CUDA0_model_bytes": [
+          11701783101
+        ],
+        "CUDA0_KV_bytes": [
+          603979776,
+          71303168
+        ],
+        "CUDA0_RS_bytes": [
+          627572736
+        ],
+        "CUDA0_compute_bytes": [
+          168831222,
+          163577856,
+          163577856,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222
+        ],
+        "CUDA_Host_compute_bytes": [
+          18884854,
+          13631488,
+          13631488,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/19efeb21-4f86-4bf2-b200-210ede8ddf61-q3-c32768-mtp0.log": {
+      "CPU_Mapped_model_bytes": 546308096,
+      "CUDA0_model_bytes": 12238087782,
+      "CUDA0_KV_bytes": 603979776,
+      "CUDA0_RS_bytes": 156887941,
+      "CUDA0_compute_bytes": 168831222,
+      "CUDA_Host_compute_bytes": 18884854,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          546308096
+        ],
+        "CUDA0_model_bytes": [
+          12238087782
+        ],
+        "CUDA0_KV_bytes": [
+          603979776
+        ],
+        "CUDA0_RS_bytes": [
+          156887941
+        ],
+        "CUDA0_compute_bytes": [
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222
+        ],
+        "CUDA_Host_compute_bytes": [
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/19efeb21-4f86-4bf2-b200-210ede8ddf61-q3-c32768-mtp3.log": {
+      "CPU_Mapped_model_bytes": 546308096,
+      "CUDA0_model_bytes": 12589098598,
+      "CUDA0_KV_bytes": 675282944,
+      "CUDA0_RS_bytes": 627572736,
+      "CUDA0_compute_bytes": 168831222,
+      "CUDA_Host_compute_bytes": 18884854,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          546308096
+        ],
+        "CUDA0_model_bytes": [
+          12589098598
+        ],
+        "CUDA0_KV_bytes": [
+          603979776,
+          71303168
+        ],
+        "CUDA0_RS_bytes": [
+          627572736
+        ],
+        "CUDA0_compute_bytes": [
+          168831222,
+          163577856,
+          163577856,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222,
+          168831222
+        ],
+        "CUDA_Host_compute_bytes": [
+          18884854,
+          13631488,
+          13631488,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854,
+          18884854
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/25a82098-2604-453c-9644-1fb425aa2a80-huihui-c32768-mtp3.log": {
+      "CPU_Mapped_model_bytes": 407245947,
+      "CUDA0_model_bytes": 11701783101,
+      "CUDA0_KV_bytes": 675282944,
+      "CUDA0_RS_bytes": 627572736,
+      "CUDA0_compute_bytes": 168831222,
+      "CUDA_Host_compute_bytes": 18884854,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          407245947
+        ],
+        "CUDA0_model_bytes": [
+          11701783101
+        ],
+        "CUDA0_KV_bytes": [
+          603979776,
+          71303168
+        ],
+        "CUDA0_RS_bytes": [
+          627572736
+        ],
+        "CUDA0_compute_bytes": [
+          168831222,
+          163577856,
+          163577856,
+          168831222,
+          168831222,
+          168831222
+        ],
+        "CUDA_Host_compute_bytes": [
+          18884854,
+          13631488,
+          13631488,
+          18884854,
+          18884854,
+          18884854
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/25a82098-2604-453c-9644-1fb425aa2a80-huihui-c84992-mtp3.log": {
+      "CPU_Mapped_model_bytes": 407245947,
+      "CUDA0_model_bytes": 11701783101,
+      "CUDA0_KV_bytes": 1751520379,
+      "CUDA0_RS_bytes": 627572736,
+      "CUDA0_compute_bytes": 396110070,
+      "CUDA_Host_compute_bytes": 32254198,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          407245947
+        ],
+        "CUDA0_model_bytes": [
+          11701783101
+        ],
+        "CUDA0_KV_bytes": [
+          1566572544,
+          184947835
+        ],
+        "CUDA0_RS_bytes": [
+          627572736
+        ],
+        "CUDA0_compute_bytes": [
+          396110070,
+          390856704,
+          390856704,
+          396110070,
+          396110070,
+          396110070
+        ],
+        "CUDA_Host_compute_bytes": [
+          32254198,
+          27000832,
+          27000832,
+          32254198,
+          32254198,
+          32254198
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/25a82098-2604-453c-9644-1fb425aa2a80-q3-c32768-mtp3.log": {
+      "CPU_Mapped_model_bytes": 546308096,
+      "CUDA0_model_bytes": 12589098598,
+      "CUDA0_KV_bytes": 675282944,
+      "CUDA0_RS_bytes": 627572736,
+      "CUDA0_compute_bytes": 168831222,
+      "CUDA_Host_compute_bytes": 18884854,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          546308096
+        ],
+        "CUDA0_model_bytes": [
+          12589098598
+        ],
+        "CUDA0_KV_bytes": [
+          603979776,
+          71303168
+        ],
+        "CUDA0_RS_bytes": [
+          627572736
+        ],
+        "CUDA0_compute_bytes": [
+          168831222,
+          163577856,
+          163577856,
+          168831222,
+          168831222,
+          168831222
+        ],
+        "CUDA_Host_compute_bytes": [
+          18884854,
+          13631488,
+          13631488,
+          18884854,
+          18884854,
+          18884854
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/25a82098-2604-453c-9644-1fb425aa2a80-q3-c84992-mtp3.log": {
+      "CPU_Mapped_model_bytes": 546308096,
+      "CUDA0_model_bytes": 12589098598,
+      "CUDA0_KV_bytes": 1751520379,
+      "CUDA0_RS_bytes": 627572736,
+      "CUDA0_compute_bytes": 396110070,
+      "CUDA_Host_compute_bytes": 32254198,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          546308096
+        ],
+        "CUDA0_model_bytes": [
+          12589098598
+        ],
+        "CUDA0_KV_bytes": [
+          1566572544,
+          184947835
+        ],
+        "CUDA0_RS_bytes": [
+          627572736
+        ],
+        "CUDA0_compute_bytes": [
+          396110070,
+          390856704,
+          390856704,
+          396110070
+        ],
+        "CUDA_Host_compute_bytes": [
+          32254198,
+          27000832,
+          27000832,
+          32254198
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    },
+    "<LOCAL_PATH>/c00a56be-0f90-41f3-b42a-1ed799e9c19d-huihui-c84992-mtp3.log": {
+      "CPU_Mapped_model_bytes": 407245947,
+      "CUDA0_model_bytes": 11701783101,
+      "CUDA0_KV_bytes": 1751520379,
+      "CUDA0_RS_bytes": 627572736,
+      "CUDA0_compute_bytes": 396110070,
+      "CUDA_Host_compute_bytes": 32254198,
+      "_logged_allocation_events_bytes": {
+        "CPU_Mapped_model_bytes": [
+          407245947
+        ],
+        "CUDA0_model_bytes": [
+          11701783101
+        ],
+        "CUDA0_KV_bytes": [
+          1566572544,
+          184947835
+        ],
+        "CUDA0_RS_bytes": [
+          627572736
+        ],
+        "CUDA0_compute_bytes": [
+          396110070,
+          349458924,
+          349458924,
+          396110070,
+          396110070,
+          396110070
+        ],
+        "CUDA_Host_compute_bytes": [
+          32254198,
+          838861,
+          838861,
+          32254198,
+          32254198,
+          32254198
+        ]
+      },
+      "_compute_scope": "last logged reservation per device, not total live or peak workspace"
+    }
+  }
+}
